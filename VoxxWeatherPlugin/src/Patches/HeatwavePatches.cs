@@ -22,7 +22,8 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.High)]
         private static void HeatStrokePatchPrefix(PlayerControllerB __instance)
         {
-            if (!(HeatwaveWeather.Instance?.IsActive ?? false) || __instance != GameNetworkManager.Instance?.localPlayerController )
+            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || __instance != (GameNetworkManager.Instance != null
+                && GameNetworkManager.Instance.localPlayerController))
                 return;
             prevSprintMeter = __instance.sprintMeter;
         }
@@ -32,7 +33,8 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.Low)]
         private static void HeatStrokePatchLatePostfix(PlayerControllerB __instance)
         {
-            if (!(HeatwaveWeather.Instance?.IsActive ?? false) || __instance != GameNetworkManager.Instance?.localPlayerController )
+            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || __instance != (GameNetworkManager.Instance != null
+                && GameNetworkManager.Instance.localPlayerController))
                 return;
 
             if (CheckConditionsForHeatingStop(__instance))
@@ -80,10 +82,10 @@ namespace VoxxWeatherPlugin.Patches
 
         internal static bool CheckConditionsForHeatingStop(PlayerControllerB playerController)
         {
-            return playerController.beamUpParticle.isPlaying || playerController.isInElevator || 
+            return playerController.beamUpParticle.isPlaying || playerController.isInElevator ||
                     playerController.isInHangarShipRoom || playerController.isUnderwater ||
                      playerController.isPlayerDead || playerController.isInsideFactory ||
-                     (playerController.currentAudioTrigger?.insideLighting ?? false);
+                     (playerController.currentAudioTrigger != null && playerController.currentAudioTrigger.insideLighting);
         }
 
         [HarmonyPatch(typeof(SoundManager), "SetAudioFilters")]
@@ -91,10 +93,10 @@ namespace VoxxWeatherPlugin.Patches
         static IEnumerable<CodeInstruction> HeatstrokeAudioPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             var codes = new List<CodeInstruction>(instructions);
-            
+
             for (int i = 0; i < codes.Count - 2; i++)
             {
-                if (codes[i].opcode == OpCodes.Ldfld && 
+                if (codes[i].opcode == OpCodes.Ldfld &&
                     codes[i].operand.ToString().Contains("drunkness") &&
                     codes[i + 1].opcode == OpCodes.Callvirt &&
                     codes[i + 1].operand.ToString().Contains("Evaluate") &&
@@ -123,11 +125,11 @@ namespace VoxxWeatherPlugin.Patches
             return codes;
         }
 
-    //     [HarmonyPatch(typeof(VehicleController), "Start")]
-    //     [HarmonyPrefix]
-    //     private static void VehicleHeaterPatch(VehicleController __instance)
-    //     {
-    //         VehicleHeatwaveHandler vehicleHeater = __instance.gameObject.AddComponent<VehicleHeatwaveHandler>();
-    //     }
+        //     [HarmonyPatch(typeof(VehicleController), "Start")]
+        //     [HarmonyPrefix]
+        //     private static void VehicleHeaterPatch(VehicleController __instance)
+        //     {
+        //         VehicleHeatwaveHandler vehicleHeater = __instance.gameObject.AddComponent<VehicleHeatwaveHandler>();
+        //     }
     }
 }

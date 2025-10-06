@@ -58,14 +58,14 @@ namespace VoxxWeatherPlugin.Utils
             RenderTexture blurRT2 = RenderTexture.GetTemporary(bakeResolution, bakeResolution, 0, RenderTextureFormat.ARGBFloat);
             blurRT2.wrapMode = TextureWrapMode.Clamp;
             blurRT2.filterMode = FilterMode.Trilinear;
-            
+
             Texture2D maskLayer = new Texture2D(bakeResolution, bakeResolution, TextureFormat.RGBAFloat, false);
             maskLayer.wrapMode = TextureWrapMode.Clamp;
             maskLayer.filterMode = FilterMode.Trilinear;
 
             for (int textureIndex = 0; textureIndex < objectsToBake.Count; textureIndex++)
             {
-                
+
                 if (!TryBakeMask(snowMasks, objectsToBake[textureIndex], bakeMaterial, textureIndex, tempRT, blurRT1, blurRT2, maskLayer, sw, bakeResolution, submeshIndex))
                 {
                     Debug.LogError("Failed to bake mask for object at index " + textureIndex);
@@ -75,7 +75,7 @@ namespace VoxxWeatherPlugin.Utils
                 yield return null;
             }
 
-            
+
             RenderTexture.ReleaseTemporary(tempRT);
             RenderTexture.ReleaseTemporary(blurRT1);
             RenderTexture.ReleaseTemporary(blurRT2);
@@ -110,7 +110,7 @@ namespace VoxxWeatherPlugin.Utils
                 return false;
             }
 
-            Mesh? mesh = objectToBake.GetComponent<MeshFilter>()?.sharedMesh;
+            Mesh? mesh = objectToBake.TryGetComponent(out MeshFilter meshFilter) ? meshFilter.sharedMesh : null;
 
             if (mesh == null)
             {
@@ -124,10 +124,10 @@ namespace VoxxWeatherPlugin.Utils
             RenderTexture currentRT = RenderTexture.active;
             RenderTexture.active = tempRT;
             GL.Clear(true, true, Color.clear);
-            
+
             var matrix = objectToBake.transform.localToWorldMatrix;
             // UV1 is used for baking here (see shader implementation)
-            if (bakeMaterial?.SetPass(0) ?? false)
+            if (bakeMaterial != null && bakeMaterial.SetPass(0))
                 Graphics.DrawMeshNow(mesh, matrix, submeshIndex);
 
             sw.Stop();
@@ -143,7 +143,7 @@ namespace VoxxWeatherPlugin.Utils
 
             // Copy the texture to the specified index in the masks texture array
             Graphics.CopyTexture(maskLayer, 0, 0, snowMasks, textureIndex, 0);
-            
+
             sw.Stop();
             Debug.LogDebug("Blurring took " + sw.ElapsedMilliseconds + " ms");
 
@@ -156,7 +156,7 @@ namespace VoxxWeatherPlugin.Utils
 
             return true;
         }
-   
+
         public static GameObject Duplicate(this GameObject original, bool disableShadows = true, bool removeCollider = true, bool noChildren = true)
         {
             // Temporarily unparent children
@@ -171,7 +171,7 @@ namespace VoxxWeatherPlugin.Utils
             }
             // Instantiate but without children of original
             GameObject duplicate = GameObject.Instantiate(original);
-            
+
             // Reparent children to the original
             if (noChildren)
             {
@@ -194,7 +194,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
             }
-            
+
             if (!disableShadows)
             {
                 // Disable shadows for the original object
@@ -226,10 +226,10 @@ namespace VoxxWeatherPlugin.Utils
 
         public static void RestoreShader(this Material material)
         {
-            Shader m_Shader = Shader.Find(material.shader.name); 
+            Shader m_Shader = Shader.Find(material.shader.name);
             material.shader = m_Shader;
         }
-        
+
         public static void SpawnAtPosition(this Item itemToSpawn, Vector3 spawnPosition, int scrapValue = 7)
         {
             if (itemToSpawn == null)
@@ -293,7 +293,7 @@ namespace VoxxWeatherPlugin.Utils
                 yield return null;
 
             sw.Stop();
-            
+
             Debug.LogDebug($"NavMesh rebaked in {sw.ElapsedMilliseconds} ms");
         }
 
@@ -334,7 +334,7 @@ namespace VoxxWeatherPlugin.Utils
 
             byte[] bytes = ImageConversion.EncodeToPNG(tex);
             File.WriteAllBytes(filePath, bytes);
-            Object.DestroyImmediate(tex); 
+            Object.DestroyImmediate(tex);
         }
 
         public static void SaveToFile(this Texture2D tex, string filePath)
@@ -351,7 +351,7 @@ namespace VoxxWeatherPlugin.Utils
             newTex.Apply();
             byte[] bytes = ImageConversion.EncodeToPNG(tex);
             File.WriteAllBytes(filePath, bytes);
-            Object.Destroy(newTex); 
+            Object.Destroy(newTex);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace VoxxWeatherPlugin.Utils
                 snowTrackersContainer = new GameObject("SnowTrackersContainer");
                 snowTrackersContainer.SetActive(false);
                 GameObject.DontDestroyOnLoad(snowTrackersContainer);
-            }   
+            }
 
             VisualEffectAsset? trackerVariantVFX = trackerVariant switch
             {
@@ -122,7 +122,8 @@ namespace VoxxWeatherPlugin.Utils
                 bool trackingNeedsUpdating = trackerData.isTracking ^ enableTracker;
                 if (trackingNeedsUpdating)
                 {
-                    footprintsTrackerVFX?.SetBool(isTrackingID, enableTracker);
+                    if (footprintsTrackerVFX != null)
+                        footprintsTrackerVFX.SetBool(isTrackingID, enableTracker);
                     trackerData.isTracking = enableTracker;
                 }
             }
@@ -146,11 +147,11 @@ namespace VoxxWeatherPlugin.Utils
                     return;
                 }
                 // Set the position of the tracker to the object's position
-                footprintsTrackerVFX.transform.position = obj.transform.position; 
+                footprintsTrackerVFX.transform.position = obj.transform.position;
                 footprintsTrackerVFX.Play();
             }
         }
-        
+
         internal static void AddFootprintTracker(MonoBehaviour obj,
                                                 float particleSize,
                                                 float lifetimeMultiplier,
@@ -176,7 +177,7 @@ namespace VoxxWeatherPlugin.Utils
                     RegisterFootprintTracker(obj, TrackerType.Footprints, particleSize, lifetimeMultiplier, footprintStrength, positionOffset);
                     break;
             }
-                
+
             if (obj is Shovel)
             {
                 RegisterFootprintTracker(obj, TrackerType.Shovel, 2f);
@@ -196,7 +197,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 VisualEffect footprintsTrackerVFX = trackerData.trackerVFX;
                 // Move the tracker to the container temporarily if the main object is destroyed to prevent vanishing of the particles
-                footprintsTrackerVFX.transform.SetParent(snowTrackersContainer?.transform); 
+                footprintsTrackerVFX.transform.SetParent(snowTrackersContainer != null ? snowTrackersContainer.transform : null);
             }
         }
 
@@ -213,7 +214,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 VisualEffect footprintsTrackerVFX = trackerData.trackerVFX;
                 // Restore the tracker to the object
-                footprintsTrackerVFX.transform.SetParent(obj?.transform); 
+                footprintsTrackerVFX.transform.SetParent(obj != null ? obj.transform : null);
             }
         }
 
@@ -221,11 +222,11 @@ namespace VoxxWeatherPlugin.Utils
         private static void CleanupFootprintTrackers(Dictionary<MonoBehaviour, SnowTrackerData> trackersDict, bool enable = false)
         {
             List<MonoBehaviour> keysToRemove = []; // Store keys to remove
-            
+
             if (snowTrackersContainer != null)
                 snowTrackersContainer.SetActive(enable);
 
-            foreach ((var obj, var trackerData) in trackersDict) 
+            foreach ((var obj, var trackerData) in trackersDict)
             {
                 if (obj == null) // Check if the object has been destroyed
                 {
@@ -233,9 +234,9 @@ namespace VoxxWeatherPlugin.Utils
                         GameObject.Destroy(trackerData.trackerVFX.gameObject);
                     keysToRemove.Add(obj);
                 }
-                else
+                else if (trackerData.trackerVFX != null)
                 {
-                    trackerData.trackerVFX?.gameObject.SetActive(enable);
+                    trackerData.trackerVFX.gameObject.SetActive(enable);
                 }
             }
 

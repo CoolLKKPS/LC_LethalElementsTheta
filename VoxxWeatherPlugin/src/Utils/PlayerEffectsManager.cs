@@ -22,7 +22,7 @@ namespace VoxxWeatherPlugin.Utils
         internal static Volume? heatEffectVolume;
         internal static Volume? freezeEffectVolume;
         internal static Volume? underSnowVolume;
-        
+
         private static float UnderSnowVisualMultiplier => Configuration.underSnowFilterMultiplier.Value;
         private static float HeatVisualMultiplier => Configuration.HeathazeFilterMultiplier.Value;
         private static float ColdVisualMultiplier => Configuration.frostbiteFilterMultiplier.Value;
@@ -38,7 +38,7 @@ namespace VoxxWeatherPlugin.Utils
             if (freezeEffectVolume != null)
             {
                 // Game shows overlay only at 0.9 weight for some reason, and we want it to be visible at frostbiteThreshold, so we need to remap the values:
-                freezeEffectVolume.weight = ColdVisualMultiplier * Mathf.Min(ColdSeverity/SnowPatches.frostbiteThreshold*0.9f, (0.1f*ColdSeverity + 0.9f - SnowPatches.frostbiteThreshold)/(1f - SnowPatches.frostbiteThreshold));
+                freezeEffectVolume.weight = ColdVisualMultiplier * Mathf.Min(ColdSeverity / SnowPatches.frostbiteThreshold * 0.9f, (0.1f * ColdSeverity + 0.9f - SnowPatches.frostbiteThreshold) / (1f - SnowPatches.frostbiteThreshold));
             }
         }
 
@@ -51,7 +51,7 @@ namespace VoxxWeatherPlugin.Utils
         internal static void SetPoisoningEffect(float poisonDelta)
         {
             // If poisonDelta is Time.deltaTime, then poisoningStrength will be increased by 0.25 per second, will reach 1 in 4 seconds
-            poisoningStrength = Mathf.Clamp01(poisoningStrength + poisonDelta*0.25f);
+            poisoningStrength = Mathf.Clamp01(poisoningStrength + poisonDelta * 0.25f);
             PlayerControllerB localPlayerController = GameNetworkManager.Instance.localPlayerController;
             float currentDrunknessFilterWeight = HUDManager.Instance.drunknessFilter.weight;
             float newDrunknessFilterWeight = Mathf.Max(currentDrunknessFilterWeight, poisoningStrength);
@@ -61,14 +61,14 @@ namespace VoxxWeatherPlugin.Utils
             // Set audio effect
             SoundManager.Instance.playerVoicePitchTargets[localPlayerController.playerClientId] = newDrunknessFilterWeight <= 0.15f ? 1f : 1f + newDrunknessFilterWeight;
         }
-        
+
         internal static void SetUnderSnowEffect(float weightDelta)
         {
             if (underSnowVolume == null)
             {
                 return;
             }
-            float newWeight = Mathf.Clamp01(underSnowVolume!.weight + weightDelta/underSnowFadeSpeed);
+            float newWeight = Mathf.Clamp01(underSnowVolume!.weight + weightDelta / underSnowFadeSpeed);
             underSnowVolume.weight = newWeight * UnderSnowVisualMultiplier;
         }
     }

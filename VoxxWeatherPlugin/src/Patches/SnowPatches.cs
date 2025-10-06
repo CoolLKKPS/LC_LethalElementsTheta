@@ -28,7 +28,7 @@ namespace VoxxWeatherPlugin.Patches
         internal static HashSet<Type> unaffectedEnemyTypes = new HashSet<Type> {typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI),
                                                                                 typeof(ButlerBeesEnemyAI), typeof(DocileLocustBeesAI), typeof(RedLocustBees),
                                                                                 typeof(DressGirlAI), typeof(SandWormAI)};
-        public static HashSet<string>? EnemySpawnBlacklist => LevelManipulator.Instance?.enemySnowBlacklist;
+        public static HashSet<string>? EnemySpawnBlacklist => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.enemySnowBlacklist : null;
         public static HashSet<SpawnableEnemyWithRarity> enemiesToRestore = [];
 
 
@@ -51,10 +51,10 @@ namespace VoxxWeatherPlugin.Patches
                 Debug.LogError("Failed to match code in SnowHindranceTranspiler");
                 return instructions;
             }
-            
+
             var num3Index = ((LocalBuilder)codeMatcher.Operand).LocalIndex;
 
-            codeMatcher.Advance(1); 
+            codeMatcher.Advance(1);
 
             codeMatcher.InsertAndAdvance(
                 new CodeInstruction(OpCodes.Ldloc_S, num3Index), // Load num3 onto the stack
@@ -86,7 +86,7 @@ namespace VoxxWeatherPlugin.Patches
                 Debug.LogError("Failed to match code in GroundSamplingTranspiler");
                 return instructions;
             }
-            
+
             codeMatcher.RemoveInstructions(20);
             codeMatcher.InsertAndAdvance(
                 new CodeInstruction(OpCodes.Ldarg_0),
@@ -174,7 +174,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.Low)]
         private static void FrostbiteLatePostfix(PlayerControllerB __instance)
         {
-            if (!IsSnowActive() || __instance != GameNetworkManager.Instance?.localPlayerController)
+            if (!IsSnowActive() || __instance != (GameNetworkManager.Instance != null ? GameNetworkManager.Instance.localPlayerController : null))
                 return;
 
             // Gradually reduce heat severity when not in heat zone
@@ -200,11 +200,11 @@ namespace VoxxWeatherPlugin.Patches
             float severity = PlayerEffectsManager.ColdSeverity;
 
             // Debug.LogDebug($"Severity: {severity}, inColdZone: {PlayerEffectsManager.isInColdZone}, frostbiteTimer: {frostbiteTimer}, heatTransferRate: {PlayerEffectsManager.heatTransferRate}");
-            
+
             if (severity >= frostbiteThreshold)
             {
                 frostbiteTimer += Time.deltaTime;
-                int damage = Mathf.CeilToInt(FrostbiteDamage*severity);
+                int damage = Mathf.CeilToInt(FrostbiteDamage * severity);
                 if (frostbiteTimer > FrostbiteDamageInterval && damage > 0)
                 {
                     __instance.DamagePlayer(damage, causeOfDeath: CauseOfDeath.Unknown);
@@ -239,9 +239,11 @@ namespace VoxxWeatherPlugin.Patches
                 // Check if enemy is affected by snow hindrance
                 if (!unaffectedEnemyTypes.Contains(__instance.GetType()))
                 {
-                    if (Physics.Raycast(__instance.transform.position, -Vector3.up, out __instance.raycastHit, 6f, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore))
+                    if (Physics.Raycast(__instance.transform.position, -Vector3.up, out __instance.raycastHit, 6f,
+                        StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore)
+                            && SnowThicknessManager.Instance != null)
                     {
-                        SnowThicknessManager.Instance?.UpdateEntityData(__instance, __instance.raycastHit);
+                        SnowThicknessManager.Instance.UpdateEntityData(__instance, __instance.raycastHit);
                     }
                 }
             }
@@ -252,12 +254,12 @@ namespace VoxxWeatherPlugin.Patches
         {
             if (SnowAffectsEnemies &&
                 __instance.IsOwner &&
-                IsSnowActive() && 
+                IsSnowActive() &&
                 __instance.isOutside)
             {
                 float snowThickness = SnowThicknessManager.Instance!.GetSnowThickness(__instance);
                 // Slow down if the entity in snow (only if snow thickness is above 0.4, caps at 2.5 height)
-                float snowMovementHindranceMultiplier = 1 + 5*Mathf.Clamp01((snowThickness - 0.4f)/2.1f);
+                float snowMovementHindranceMultiplier = 1 + 5 * Mathf.Clamp01((snowThickness - 0.4f) / 2.1f);
 
                 __instance.agent.speed /= snowMovementHindranceMultiplier;
             }
@@ -308,14 +310,14 @@ namespace VoxxWeatherPlugin.Patches
         {
             SnowTrackersManager.AddFootprintTracker(__instance, 2f, 0.167f, 0.7f);
         }
-        
+
         [HarmonyPatch(typeof(VehicleController), "Start")]
         [HarmonyPrefix]
         private static void VehicleSnowTracksPatch(VehicleController __instance)
         {
             SnowTrackersManager.AddFootprintTracker(__instance, 6f, 0.75f, 1f, new Vector3(0, 0, 1.5f));
         }
-        
+
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
         private static void PlayerSnowTracksUpdatePatch(PlayerControllerB __instance)
@@ -324,14 +326,14 @@ namespace VoxxWeatherPlugin.Patches
             {
                 return;
             }
-            bool enableTracker = !__instance.isInsideFactory &&
-                                    (SnowThicknessManager.Instance?.IsEntityOnNaturalGround(__instance) ?? false);
+            bool enableTracker = !__instance.isInsideFactory && SnowThicknessManager.Instance != null
+                && SnowThicknessManager.Instance.IsEntityOnNaturalGround(__instance);
             // We need this check to prevent updating tracker's position after player death, as players get moved out of bounds on their death, causing VFX to be culled
-            if (!__instance.isPlayerDead) 
+            if (!__instance.isPlayerDead)
             {
                 SnowTrackersManager.UpdateFootprintTracker(__instance, enableTracker);
             }
-            
+
         }
 
         [HarmonyPatch(typeof(EnemyAI), "Update")]
@@ -343,9 +345,9 @@ namespace VoxxWeatherPlugin.Patches
                 return;
             }
             // __instance.isOutside is a simplified check for clients, may cause incorrect behaviour in some cases
-            
-            bool enableTracker = __instance.isOutside ||
-                                    (SnowThicknessManager.Instance?.IsEntityOnNaturalGround(__instance) ?? false);
+
+            bool enableTracker = __instance.isOutside || (SnowThicknessManager.Instance != null
+                && SnowThicknessManager.Instance.IsEntityOnNaturalGround(__instance));
             if (__instance is SandWormAI worm)
             {
                 enableTracker &= worm.emerged || worm.inEmergingState;
@@ -361,7 +363,7 @@ namespace VoxxWeatherPlugin.Patches
             {
                 return;
             }
-            
+
             bool enableTracker = __instance.FrontLeftWheel.isGrounded ||
                                     __instance.FrontRightWheel.isGrounded ||
                                     __instance.BackLeftWheel.isGrounded ||
@@ -383,7 +385,7 @@ namespace VoxxWeatherPlugin.Patches
         {
             SnowTrackersManager.TempSaveTracker(__instance, TrackerType.FootprintsLowCapacity);
         }
-        
+
         [HarmonyPatch(typeof(VehicleController), "DestroyCar")]
         [HarmonyPostfix]
         private static void VehicleSnowTracksDestroyPatch(VehicleController __instance)
@@ -463,7 +465,7 @@ namespace VoxxWeatherPlugin.Patches
         {
             if (!__instance.IsHost || !IsSnowActive() || enemiesToRestore.Count == 0)
                 return;
-            
+
             RestoreEnemies();
         }
 
@@ -484,7 +486,7 @@ namespace VoxxWeatherPlugin.Patches
             bool isSameSurface = isOnGround ? playerScript.hit.collider.CompareTag(StartOfRound.Instance.footstepSurfaces[playerScript.currentFootstepSurfaceIndex].surfaceTag) : true;
             bool snowOverride = false;
 
-            if (!IsSnowActive() || !(LevelManipulator.Instance?.IsSnowReady ?? false))
+            if (!IsSnowActive() || !(LevelManipulator.Instance != null && LevelManipulator.Instance.IsSnowReady))
             {
                 return !isOnGround || isSameSurface;
             }
@@ -510,16 +512,16 @@ namespace VoxxWeatherPlugin.Patches
 
         private static void LocalGroundUpdate(PlayerControllerB playerScript, int index)
         {
-            if (IsSnowActive() && index == 0)
+            if (IsSnowActive() && index == 0 && SnowThicknessManager.Instance != null)
             {
-                SnowThicknessManager.Instance?.UpdateEntityData(playerScript, playerScript.hit);
+                SnowThicknessManager.Instance.UpdateEntityData(playerScript, playerScript.hit);
             }
         }
 
         // Patch for ice rebake condition
         // true if we should NOT delay rebaking navmesh for ice
         public static bool DelayRebakeForIce()
-        {   
+        {
             bool delayRebake = IsSnowActive() &&
                                 Configuration.freezeWater.Value;
             Debug.LogDebug($"Should we delay NavMesh rebaking for ice: {delayRebake}");
@@ -529,7 +531,7 @@ namespace VoxxWeatherPlugin.Patches
         // TODO Check if this is working
         public static bool IsSnowActive()
         {
-            return (SnowfallWeather.Instance?.IsActive ?? false) || (BlizzardWeather.Instance?.IsActive ?? false);
+            return (SnowfallWeather.Instance != null && SnowfallWeather.Instance.IsActive) || (BlizzardWeather.Instance != null && BlizzardWeather.Instance.IsActive);
         }
 
         // public static void DebugSnowCheck()
@@ -546,7 +548,7 @@ namespace VoxxWeatherPlugin.Patches
         //     //Inspect names of the current weather and the weather in the level
         //     Debug.LogDebug($"Current weather: '{WeatherManager.GetCurrentLevelWeather().Name}', SnowfallWeather: '{SnowfallWeather.Instance?.WeatherName}', BlizzardWeather: '{BlizzardWeather.Instance?.WeatherName}'");
         // }
-        
+
     }
 
     [HarmonyPatch]
@@ -559,7 +561,7 @@ namespace VoxxWeatherPlugin.Patches
         private static IEnumerable<CodeInstruction> LowResTransparencyTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             var codeMatcher = new CodeMatcher(instructions);
-            
+
             codeMatcher.MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldarg_1), // renderGraph

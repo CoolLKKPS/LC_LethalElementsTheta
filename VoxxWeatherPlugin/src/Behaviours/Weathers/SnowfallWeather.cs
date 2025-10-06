@@ -13,14 +13,14 @@ using UnityEngine.Rendering.HighDefinition;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class SnowfallWeather: BaseWeather
+    internal class SnowfallWeather : BaseWeather
     {
         public static SnowfallWeather? Instance { get; internal set; }
         internal virtual float MinSnowHeight => Configuration.minSnowHeight.Value;
         internal virtual float MaxSnowHeight => Configuration.maxSnowHeight.Value;
         internal virtual float MinSnowNormalizedTime => Configuration.minTimeToFullSnow.Value;
         internal virtual float MaxSnowNormalizedTime => Configuration.maxTimeToFullSnow.Value;
-        
+
         [Header("General")]
         [SerializeField]
         internal float timeUntilFrostbite = 0.6f * Configuration.minTimeUntilFrostbite.Value;
@@ -28,41 +28,52 @@ namespace VoxxWeatherPlugin.Weathers
         internal SnowfallVFXManager? VFXManager;
 
         internal virtual void Awake()
-        {   
+        {
             Instance = this;
         }
 
         internal virtual void OnEnable()
         {
-            LevelManipulator.Instance?.InitializeLevelProperties(1.5f);
-            LevelManipulator.Instance?.SetupLevelForSnow(snowHeightRange: (MinSnowHeight, MaxSnowHeight),
-                                                        snowNormalizedTimeRange: (MinSnowNormalizedTime, MaxSnowNormalizedTime),
-                                                        snowScaleRange: (0.7f, 1.3f),
-                                                        fogStrengthRange: (0f, 15f));
-            VFXManager?.PopulateLevelWithVFX();
+            if (LevelManipulator.Instance != null)
+            {
+                LevelManipulator.Instance.InitializeLevelProperties(1.5f);
+                LevelManipulator.Instance.SetupLevelForSnow(snowHeightRange: (MinSnowHeight, MaxSnowHeight),
+                                                            snowNormalizedTimeRange: (MinSnowNormalizedTime, MaxSnowNormalizedTime),
+                                                            snowScaleRange: (0.7f, 1.3f),
+                                                            fogStrengthRange: (0f, 15f));
+            }
+            if (VFXManager != null)
+                VFXManager.PopulateLevelWithVFX();
         }
 
         internal void OnFinish()
         {
-            LevelManipulator.Instance?.ResetLevelProperties();
-            LevelManipulator.Instance?.ResetSnowVariables();
+            if (LevelManipulator.Instance != null)
+            {
+                LevelManipulator.Instance.ResetLevelProperties();
+                LevelManipulator.Instance.ResetSnowVariables();
+            }
             PlayerEffectsManager.normalizedTemperature = 0f;
         }
 
         internal virtual void OnDisable()
         {
             OnFinish();
-            VFXManager?.Reset();
+            if (VFXManager != null)
+                VFXManager.Reset();
         }
 
         internal virtual void Update()
         {
-            if (!LevelManipulator.Instance?.IsSnowReady ?? false)
+            if (LevelManipulator.Instance == null || !LevelManipulator.Instance.IsSnowReady)
             {
                 return;
             }
-            LevelManipulator.Instance?.UpdateLevelProperties();
-            LevelManipulator.Instance?.UpdateSnowVariables();
+            if (LevelManipulator.Instance != null)
+            {
+                LevelManipulator.Instance.UpdateLevelProperties();
+                LevelManipulator.Instance.UpdateSnowVariables();
+            }
             // Update the snow thickness (host must constantly update for enemies, clients only when not in factory)
             if (GameNetworkManager.Instance.isHostingGame || !GameNetworkManager.Instance.localPlayerController.isInsideFactory)
             {
@@ -78,7 +89,7 @@ namespace VoxxWeatherPlugin.Weathers
 
     }
 
-    public class SnowfallVFXManager: BaseVFXManager
+    public class SnowfallVFXManager : BaseVFXManager
     {
         [SerializeField]
         internal bool addedVanillaFootprints = false;
@@ -106,23 +117,38 @@ namespace VoxxWeatherPlugin.Weathers
 
         internal virtual void OnEnable()
         {
-            snowVFXContainer?.SetActive(true);
+            if (snowVFXContainer != null)
+                snowVFXContainer.SetActive(true);
 
-            PlayerEffectsManager.freezeEffectVolume.enabled = true;
-            PlayerEffectsManager.underSnowVolume.enabled = true;
-            
-            LevelManipulator.Instance!.snowVolume!.enabled = true;
-            LevelManipulator.Instance.snowTrackerCameraContainer?.SetActive(true);
+            if (PlayerEffectsManager.freezeEffectVolume != null)
+                PlayerEffectsManager.freezeEffectVolume.enabled = true;
+            if (PlayerEffectsManager.underSnowVolume != null)
+                PlayerEffectsManager.underSnowVolume.enabled = true;
+
+            if (LevelManipulator.Instance != null)
+            {
+                if (LevelManipulator.Instance.snowVolume != null)
+                    LevelManipulator.Instance.snowVolume.enabled = true;
+                if (LevelManipulator.Instance.snowTrackerCameraContainer != null)
+                    LevelManipulator.Instance.snowTrackerCameraContainer.SetActive(true);
+            }
         }
 
         internal virtual void OnDisable()
         {
-            snowVFXContainer?.SetActive(false);
-            LevelManipulator.Instance!.snowVolume!.enabled = false;
-            LevelManipulator.Instance.snowTrackerCameraContainer?.SetActive(false);
+            if (snowVFXContainer != null)
+                snowVFXContainer.SetActive(false);
+            if (LevelManipulator.Instance != null)
+            {
+                if (LevelManipulator.Instance.snowVolume != null)
+                    LevelManipulator.Instance.snowVolume.enabled = false;
+                if (LevelManipulator.Instance.snowTrackerCameraContainer != null)
+                    LevelManipulator.Instance.snowTrackerCameraContainer.SetActive(false);
+            }
             snowMovementHindranceMultiplier = 1f;
             PlayerEffectsManager.isInColdZone = false;
-            PlayerEffectsManager.underSnowVolume.enabled = false;
+            if (PlayerEffectsManager.underSnowVolume != null)
+                PlayerEffectsManager.underSnowVolume.enabled = false;
             PlayerEffectsManager.isUnderSnow = false;
         }
 
@@ -130,15 +156,16 @@ namespace VoxxWeatherPlugin.Weathers
         {
             addedVanillaFootprints = false;
             PlayerEffectsManager.isInColdZone = false;
-            SnowThicknessManager.Instance?.Reset();
+            if (SnowThicknessManager.Instance != null)
+                SnowThicknessManager.Instance.Reset();
             SnowTrackersManager.CleanupTrackers();
         }
 
         internal virtual void Update()
-        {   
+        {
             PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
-            
-            if ((SnowThicknessManager.Instance?.IsOnNaturalGround ?? false) &&
+
+            if (SnowThicknessManager.Instance != null && SnowThicknessManager.Instance.IsOnNaturalGround &&
                     localPlayer.physicsParent == null &&
                     !localPlayer.isPlayerDead &&
                     localPlayer.thisController.isGrounded)
@@ -150,10 +177,10 @@ namespace VoxxWeatherPlugin.Weathers
                 PlayerEffectsManager.isUnderSnow = SnowThicknessManager.Instance.feetPositionY + snowThickness >= localPlayerEyeY - eyeBias;
 
                 // If the user decreases frostbite damage from the default value (10), add additional slowdown
-                float metaSnowThickness = Mathf.Clamp01(1 - SnowPatches.FrostbiteDamage/10f) * PlayerEffectsManager.ColdSeverity;
+                float metaSnowThickness = Mathf.Clamp01(1 - SnowPatches.FrostbiteDamage / 10f) * PlayerEffectsManager.ColdSeverity;
 
                 // Slow down the player if they are in snow (only if snow thickness is above 0.4, caps at 2.5 height)
-                snowMovementHindranceMultiplier = 1 + 5*Mathf.Clamp01((snowThickness + metaSnowThickness - 0.4f)/2.1f);
+                snowMovementHindranceMultiplier = 1 + 5 * Mathf.Clamp01((snowThickness + metaSnowThickness - 0.4f) / 2.1f);
             }
             else
             {
@@ -165,7 +192,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (Configuration.addFootprints.Value &&
                 !addedVanillaFootprints &&
                 !StartOfRound.Instance.currentLevel.levelIncludesSnowFootprints
-                && (LevelManipulator.Instance?.snowIntensity ?? 10f) < 7)
+                && (LevelManipulator.Instance != null ? LevelManipulator.Instance.snowIntensity : 10f) < 7)
             {
                 StartOfRound.Instance.InstantiateFootprintsPooledObjects();
                 addedVanillaFootprints = true;
@@ -174,7 +201,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         internal override void PopulateLevelWithVFX()
         {
-            if (SnowfallWeather.Instance?.IsActive ?? false) // to avoid setting the depth texture for blizzard
+            if (SnowfallWeather.Instance != null && SnowfallWeather.Instance.IsActive) // to avoid setting the depth texture for blizzard
             {
                 HDRPCameraOrTextureBinder? depthBinder = snowVFXContainer!.GetComponent<HDRPCameraOrTextureBinder>();
                 if (depthBinder != null)
@@ -188,8 +215,13 @@ namespace VoxxWeatherPlugin.Weathers
 
             SnowTrackersManager.CleanupTrackers(true);
 
-            LevelManipulator.Instance!.snowVolume!.enabled = true;
-            LevelManipulator.Instance.snowTrackerCameraContainer?.SetActive(true);
+            if (LevelManipulator.Instance != null)
+            {
+                if (LevelManipulator.Instance.snowVolume != null)
+                    LevelManipulator.Instance.snowVolume.enabled = true;
+                if (LevelManipulator.Instance.snowTrackerCameraContainer != null)
+                    LevelManipulator.Instance.snowTrackerCameraContainer.SetActive(true);
+            }
 
             // For blizzard weather prefab won't be set
             if (christmasTreePrefab == null || !Configuration.enableEasterEgg.Value)
@@ -236,9 +268,9 @@ namespace VoxxWeatherPlugin.Weathers
                 Debug.LogError("Gift box item not found in the item database!");
                 return;
             }
-            
+
             Debug.Log("Merry Christmas!");
-            
+
 
             int attempts = 24;
             bool treePlaced = false;
@@ -258,7 +290,7 @@ namespace VoxxWeatherPlugin.Weathers
                     break;
                 }
             }
-            
+
             if (!treePlaced)
             {
                 Debug.LogDebug("Failed to place a Christmas tree in the level, too many attempts!");

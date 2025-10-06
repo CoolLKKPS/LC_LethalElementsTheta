@@ -127,11 +127,11 @@ namespace VoxxWeatherPlugin.Behaviours
         {
             var shaderPasses = GetShaderTagIds();
             if (snowOverlayMaterial == null)
-            {   
+            {
                 Debug.LogWarning("Attempt to call with an empty override material. Skipping the call to avoid errors");
                 return;
             }
-            
+
             if (LevelManipulator.Instance == null)
             {
                 Debug.LogWarning("Attempt to call with an uninitialized weather variables. Skipping the call to avoid errors");
@@ -207,7 +207,6 @@ namespace VoxxWeatherPlugin.Behaviours
             // material.SetFloat(SnowfallShaderIDs.SnowOcclusionBias, SnowfallWeather.Instance!.snowOcclusionBias);
         }
 
-        
         internal void RefreshSnowMaterial(Material? material)
         {
             if (material == null)
@@ -227,7 +226,7 @@ namespace VoxxWeatherPlugin.Behaviours
             material.SetFloat(SnowfallShaderIDs.Emission, LevelManipulator.Instance.emissionMultiplier);
 
             // Default scale is 0.7 - 1.3
-            float snowNoiseScaleBias = 7f; 
+            float snowNoiseScaleBias = 7f;
             material.SetFloat(SnowfallShaderIDs.SnowNoiseScaleOverlay, LevelManipulator.Instance.snowScale + snowNoiseScaleBias);
         }
 

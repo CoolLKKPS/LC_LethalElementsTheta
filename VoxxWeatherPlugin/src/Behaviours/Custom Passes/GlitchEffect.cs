@@ -9,7 +9,6 @@ namespace VoxxWeatherPlugin.Behaviours
     [Serializable, VolumeComponentMenu("Post-processing/Custom/Glitch Effect")]
     public sealed class GlitchEffect : CustomPass
     {
-        
         [Tooltip("Overall glitch intensity.")]
         public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
 
@@ -121,7 +120,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
 
             bufferDimensions = new Vector2(ctx.cameraColorBuffer.rt.width, ctx.cameraColorBuffer.rt.height);
-            if (ctx.hdCamera?.camera?.targetTexture != null)
+            if (ctx.hdCamera != null && ctx.hdCamera.camera != null && ctx.hdCamera.camera.targetTexture != null)
             {
                 bufferDimensions = new Vector2(ctx.hdCamera.camera.targetTexture.width, ctx.hdCamera.camera.targetTexture.height);
             }
@@ -136,7 +135,7 @@ namespace VoxxWeatherPlugin.Behaviours
                                 name: "Glitch Buffer"
                                 );
 
-            
+
             Debug.Log($"Allocated temp buffer {tempColorBuffer.rt.width}x{tempColorBuffer.rt.height}");
         }
     }

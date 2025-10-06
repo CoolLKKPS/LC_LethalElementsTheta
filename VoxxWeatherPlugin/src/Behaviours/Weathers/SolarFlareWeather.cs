@@ -96,18 +96,25 @@ namespace VoxxWeatherPlugin.Weathers
 
         private void OnEnable()
         {
-            LevelManipulator.Instance?.InitializeLevelProperties(1.2f);
+            if (LevelManipulator.Instance != null)
+                LevelManipulator.Instance.InitializeLevelProperties(1.2f);
 
             GlitchRadarMap();
 
-            if (staticElectricitySound == null)
+            if (staticElectricitySound == null && StartOfRound.Instance != null && StartOfRound.Instance.allItemsList != null
+                && StartOfRound.Instance.allItemsList.itemsList != null)
             {
-                staticElectricitySound = StartOfRound.Instance.allItemsList.itemsList
-                    .FirstOrDefault(item => item.name == "ZapGun")?
-                    .spawnPrefab?
-                    .transform.Find("AimDirection")?
-                    .gameObject.GetComponent<AudioSource>()?
-                    .clip;
+                Item? zapGun = StartOfRound.Instance.allItemsList.itemsList.FirstOrDefault(item => item.name == "ZapGun");
+
+                if (zapGun != null && zapGun.spawnPrefab != null)
+                {
+                    Transform? aimDirection = zapGun.spawnPrefab.transform.Find("AimDirection");
+
+                    if (aimDirection != null && aimDirection.TryGetComponent(out AudioSource zapGunSource))
+                    {
+                        staticElectricitySound = zapGunSource.clip;
+                    }
+                }
             }
 
             FlareIntensity[] flareIntensities = (FlareIntensity[])Enum.GetValues(typeof(FlareIntensity));
@@ -120,7 +127,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             flareData = flareTypes[(int)randomIntensity];
-            
+
             RefreshGlitchCameras();
 
             TerminalAccessibleObject[] terminalObjects = FindObjectsOfType<TerminalAccessibleObject>();
@@ -138,7 +145,8 @@ namespace VoxxWeatherPlugin.Weathers
                 CreateStaticParticle(mine);
             }
 
-            VFXManager?.PopulateLevelWithVFX();
+            if (VFXManager != null)
+                VFXManager.PopulateLevelWithVFX();
 
             StartCoroutine(DisplayTipDelayed("Solar Flare Warning", $"{randomIntensity} solar energy burst detected!", 7f));
         }
@@ -152,7 +160,7 @@ namespace VoxxWeatherPlugin.Weathers
         private void RefreshGlitchCameras(bool toggle = true)
         {
             List<Camera> staleCameras = [];
-           
+
             foreach ((Camera? camera, GlitchEffect? glitchPass) in glitchPasses)
             {
                 if (camera == null || glitchPass == null)
@@ -172,7 +180,8 @@ namespace VoxxWeatherPlugin.Weathers
 
         private void OnDisable()
         {
-            LevelManipulator.Instance?.ResetLevelProperties();
+            if (LevelManipulator.Instance != null)
+                LevelManipulator.Instance.ResetLevelProperties();
 
             foreach (GlitchEffect? glitchPass in glitchPasses.Values)
             {
@@ -186,7 +195,8 @@ namespace VoxxWeatherPlugin.Weathers
             flareData = null;
             bigDoors = null;
             electricMalfunctionData?.Clear();
-            VFXManager?.Reset();
+            if (VFXManager != null)
+                VFXManager.Reset();
         }
 
         private void Update()
@@ -205,19 +215,16 @@ namespace VoxxWeatherPlugin.Weathers
 
                 lightFlickerCoroutine = StartCoroutine(LightFlickerCoroutine());
 
-                if (electricMalfunctionCoroutine == null)
-                {
-                    electricMalfunctionCoroutine = StartCoroutine(ElectricalMalfunctionCoroutine());
-                }
+                electricMalfunctionCoroutine ??= StartCoroutine(ElectricalMalfunctionCoroutine());
             }
-            
+
             if (TimeOfDay.Instance.normalizedTimeOfDay % 0.06f < 1e-4)
             {
-               if (doorMalfunctionCoroutine != null)
+                if (doorMalfunctionCoroutine != null)
                 {
                     StopCoroutine(doorMalfunctionCoroutine);
                 }
-                doorMalfunctionCoroutine = StartCoroutine(DoorMalfunctionCoroutine()); 
+                doorMalfunctionCoroutine = StartCoroutine(DoorMalfunctionCoroutine());
             }
         }
 
@@ -225,7 +232,8 @@ namespace VoxxWeatherPlugin.Weathers
         {
             foreach (Animator poweredLight in RoundManager.Instance.allPoweredLightsAnimators)
             {
-                poweredLight?.SetTrigger("Flicker");
+                if (poweredLight != null)
+                    poweredLight.SetTrigger("Flicker");
                 yield return null;
             }
 
@@ -254,33 +262,33 @@ namespace VoxxWeatherPlugin.Weathers
                 {
                     case RadMechAI:
                         if (SeededRandom.NextDouble() < RadMechMalfunctionChance &&
-                            IsRadMechMalfunctionEnabled &&
-                            (flareData?.IsRadMechMalfunction ?? false))
+                            IsRadMechMalfunctionEnabled && (flareData?.IsRadMechMalfunction ?? false)
+                            && WeatherEventSynchronizer.Instance != null)
                         {
-                            WeatherEventSynchronizer.Instance?.StartMalfunction(malfunctionData);
+                            WeatherEventSynchronizer.Instance.StartMalfunction(malfunctionData);
                         }
                         break;
                     case Turret:
                         if (SeededRandom.NextDouble() < TurretMalfunctionChance &&
-                            IsTurretMalfunctionEnabled &&
-                            (flareData?.IsTurretMalfunction ?? false))
+                            IsTurretMalfunctionEnabled && (flareData?.IsTurretMalfunction ?? false)
+                            && WeatherEventSynchronizer.Instance != null)
                         {
-                            WeatherEventSynchronizer.Instance?.StartMalfunction(malfunctionData);
+                            WeatherEventSynchronizer.Instance.StartMalfunction(malfunctionData);
                         }
                         break;
                     case EnemyAINestSpawnObject:
                         if (SeededRandom.NextDouble() < RadMechReactivationChance &&
-                            IsRadMechMalfunctionEnabled &&
-                            (flareData?.IsRadMechMalfunction ?? false))
+                            IsRadMechMalfunctionEnabled && (flareData?.IsRadMechMalfunction ?? false)
+                            && WeatherEventSynchronizer.Instance != null)
                         {
-                            WeatherEventSynchronizer.Instance?.StartMalfunction(malfunctionData);
+                            WeatherEventSynchronizer.Instance.StartMalfunction(malfunctionData);
                         }
                         break;
                     case Landmine:
-                        if (SeededRandom.NextDouble() < LandmineMalfunctionChance &&
-                            IsLandmineMalfunctionEnabled)
+                        if (SeededRandom.NextDouble() < LandmineMalfunctionChance && IsLandmineMalfunctionEnabled
+                            && WeatherEventSynchronizer.Instance != null)
                         {
-                            WeatherEventSynchronizer.Instance?.StartMalfunction(malfunctionData);
+                            WeatherEventSynchronizer.Instance.StartMalfunction(malfunctionData);
                         }
                         break;
                 }
@@ -309,9 +317,10 @@ namespace VoxxWeatherPlugin.Weathers
                 malfunctionData.FadeAudioCoroutine = null;
                 malfunctionData.ElectricAudio.volume = 0f;
             }
-            
+
             malfunctionData.FadeAudioCoroutine = StartCoroutine(FadeAudio(malfunctionData, malfunctionData.MalfunctionDuration * 0.1f, 0f, true));
-            malfunctionData.StaticParticles?.Play();
+            if (malfunctionData.StaticParticles != null)
+                malfunctionData.StaticParticles.Play();
 
             yield return new WaitForSeconds(malfunctionData.MalfunctionDuration);
 
@@ -321,7 +330,8 @@ namespace VoxxWeatherPlugin.Weathers
                 radMechAI.SetEnemyStunned(true, RadMechStunDuration);
                 yield return new WaitUntil(() => radMechAI.stunNormalizedTimer <= 0);
                 radMechAI.EnableSpotlight();
-                malfunctionData.StaticParticles?.Stop();
+                if (malfunctionData.StaticParticles != null)
+                    malfunctionData.StaticParticles.Stop();
             }
             else if (malfunctionData.malfunctionObject is Turret turret)
             {
@@ -331,11 +341,13 @@ namespace VoxxWeatherPlugin.Weathers
                 }
                 yield return new WaitForSeconds(2f); // Wait a bit so turret's mode will sync up 
                 yield return new WaitUntil(() => turret.turretMode != TurretMode.Berserk);
-                malfunctionData.StaticParticles?.Stop();
+                if (malfunctionData.StaticParticles != null)
+                    malfunctionData.StaticParticles.Stop();
             }
             else if (malfunctionData.malfunctionObject is EnemyAINestSpawnObject radMechNest)
             {
-                malfunctionData.StaticParticles?.Stop();
+                if (malfunctionData.StaticParticles != null)
+                    malfunctionData.StaticParticles.Stop();
                 EnemyType radMechType = radMechNest.enemyType;
                 if (RoundManager.Instance.currentOutsideEnemyPower + radMechType.PowerLevel <= RoundManager.Instance.currentMaxOutsidePower)
                 {
@@ -361,17 +373,18 @@ namespace VoxxWeatherPlugin.Weathers
                 {
                     (mine as IHittable).Hit(1, Vector3.down);
                 }
-                malfunctionData.StaticParticles?.Stop();
+                if (malfunctionData.StaticParticles != null)
+                    malfunctionData.StaticParticles.Stop();
                 electricMalfunctionData.Remove(mine);
             }
-            
+
             if (malfunctionData.FadeAudioCoroutine != null)
             {
                 StopCoroutine(malfunctionData.FadeAudioCoroutine);
                 malfunctionData.FadeAudioCoroutine = null;
             }
             malfunctionData.FadeAudioCoroutine = StartCoroutine(FadeAudio(malfunctionData, malfunctionData.MalfunctionDuration * 0.1f, 0.5f, false));
-            
+
             malfunctionData.MalfunctionCoroutine = null;
         }
 
@@ -390,7 +403,8 @@ namespace VoxxWeatherPlugin.Weathers
                 foreach (TerminalAccessibleObject door in bigDoors)
                 {
                     bool open = SeededRandom.NextDouble() < DoorMalfunctionChance;
-                    door?.SetDoorLocalClient(open);
+                    if (door != null)
+                        door.SetDoorLocalClient(open);
                     yield return null;
                 }
             }
@@ -440,7 +454,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             HDAdditionalCameraData radarCameraData = camera.GetComponent<HDAdditionalCameraData>();
             FrameSettingsOverrideMask radarCameraSettingsMask = radarCameraData.renderingPathCustomFrameSettingsOverrideMask;
-            
+
             void SetOverride(FrameSettingsField setting, bool enabled)
             {
                 radarCameraData.renderingPathCustomFrameSettingsOverrideMask.mask[(uint)setting] = true;
@@ -463,7 +477,7 @@ namespace VoxxWeatherPlugin.Weathers
             glitchVolume.targetCamera = camera;
 
             // Create a new GlitchEffect pass.
-            GlitchEffect glitchPass = new GlitchEffect{name = "Glitch Pass", m_Material = glitchMaterial};
+            GlitchEffect glitchPass = new GlitchEffect { name = "Glitch Pass", m_Material = glitchMaterial };
 
             // Add the pass to the volume and disable it.
             glitchVolume.customPasses.Add(glitchPass);
@@ -594,7 +608,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (fadeIn)
             {
                 audioSource.volume = 0f; // Start at zero volume for fade-in
-                audioSource.Play(); 
+                audioSource.Play();
             }
 
             while (currentTime < duration)
@@ -611,10 +625,10 @@ namespace VoxxWeatherPlugin.Weathers
 
             malfunctionData.FadeAudioCoroutine = null;
         }
-    
+
     }
 
-    
+
 
     internal class SolarFlareVFXManager : BaseVFXManager
     {
@@ -624,9 +638,9 @@ namespace VoxxWeatherPlugin.Weathers
         [SerializeField]
         internal GameObject? auroraObject; // GameObject for the particles
         private GameObject? sunTextureObject; // GameObject for the sun texture
-        
+
         // Threshold for sun luminosity in lux to enable aurora
-        internal float auroraSunThreshold => Configuration.AuroraVisibilityThreshold.Value; 
+        internal float auroraSunThreshold => Configuration.AuroraVisibilityThreshold.Value;
 
         // Variables for emitter placement
 
@@ -652,20 +666,20 @@ namespace VoxxWeatherPlugin.Weathers
             {
                 Debug.LogWarning("Sun animator is null! Disabling Corona VFX. Aurora forcibly enabled.");
             }
-            else 
+            else
             {
                 foreach (Transform child in TimeOfDay.Instance.sunDirect.transform.parent)
                 {
                     if (child.name == "SunTexture" && child.gameObject.activeInHierarchy)
                     {
                         sunTextureObject = child.gameObject;
-                        if ((!child.GetComponent<MeshRenderer>()?.enabled ?? true) && child.childCount > 0)
+                        if ((!child.TryGetComponent(out MeshRenderer sunRenderer) || !sunRenderer.enabled) && child.childCount > 0)
                         {
                             sunTextureObject = null;
                             // Iterate until a child with an enabled mesh renderer is found
                             foreach (Transform sunChild in child)
                             {
-                                if (sunChild.GetComponent<MeshRenderer>()?.enabled ?? false)
+                                if (sunChild.TryGetComponent(out MeshRenderer childRenderer) && !childRenderer.enabled)
                                 {
                                     sunTextureObject = sunChild.gameObject;
                                     break;
@@ -686,7 +700,7 @@ namespace VoxxWeatherPlugin.Weathers
             // Set up the Aurora VFX with the colors from the SolarFlareWeather instance
             auroraObject.SetActive(false);
             VisualEffect auroraVFX = auroraObject.GetComponent<VisualEffect>();
-            if (SolarFlareWeather.Instance?.flareData != null)
+            if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.flareData != null)
             {
                 //auroraObject.transform.parent = SolarFlareWeather.Instance.transform; // to stop it from moving with the player
                 //auroraObject.transform.position = new Vector3(LevelBounds.center.x, StartOfRound.Instance.shipBounds.bounds.center.y, LevelBounds.center.z);
@@ -701,25 +715,26 @@ namespace VoxxWeatherPlugin.Weathers
             if (sunTextureObject != null)
             {
                 MeshRenderer? sunMeshRenderer = sunTextureObject.GetComponent<MeshRenderer>();
-                Texture2D? mainTexture = sunMeshRenderer?.sharedMaterial.mainTexture as Texture2D;
+                Texture2D? mainTexture = sunMeshRenderer != null ? sunMeshRenderer.sharedMaterial.mainTexture as Texture2D : null;
                 if (mainTexture == null || sunMeshRenderer == null)
                 {
                     Debug.LogWarning("Sun does not have a texture or renderer assigned!");
-                    
+
                 }
                 else
                 {
                     flareObjectCopy = Instantiate(flareObject);
                     flareObjectCopy.transform.position = sunTextureObject.transform.position;
                     flareObjectCopy.transform.rotation = sunTextureObject.transform.rotation;
-                    flareObjectCopy.transform.localScale = sunTextureObject.transform.lossyScale * (SolarFlareWeather.Instance?.flareData?.FlareSize ?? 1.1f);
+                    flareObjectCopy.transform.localScale = sunTextureObject.transform.lossyScale * ((SolarFlareWeather.Instance != null
+                        && SolarFlareWeather.Instance.flareData != null) ? SolarFlareWeather.Instance.flareData.FlareSize : 1.1f);
                     flareObjectCopy.transform.parent = sunTextureObject.transform; // to sync with the sun
 
                     // Get the average color of the sun texture
                     Color averageTextureColor = GetAverageTextureColor(mainTexture);
                     float averageAlphaColor = averageTextureColor.a;
                     averageTextureColor.a = 1f; // Set alpha to 1
-                    
+
                     Color baseColor = sunMeshRenderer.sharedMaterial.color;
                     Color baseCoronaColor = Color.Lerp(baseColor, averageTextureColor, baseColor.a);
 
@@ -774,7 +789,7 @@ namespace VoxxWeatherPlugin.Weathers
                     Debug.LogWarning("Physically Based Sky not found! Corona VFX disabled.");
                     return;
                 }
-                
+
                 flareObjectCopy = Instantiate(flareObject);
                 Transform flareTransform = flareObjectCopy.transform;
 
@@ -786,19 +801,20 @@ namespace VoxxWeatherPlugin.Weathers
                 Vector3 flarePosition = directSun.transform.position + sunDirection * farClipPlane;
 
                 float sunAngularSizeRadians = (lightData.angularDiameter + lightData.flareSize) * Mathf.Deg2Rad;
-                float directSunRadius = Mathf.Tan(sunAngularSizeRadians/2) * farClipPlane;
+                float directSunRadius = Mathf.Tan(sunAngularSizeRadians / 2) * farClipPlane;
                 float flareMeshRadius = 5f; // This is hardcoded, check mesh size in Unity
-                float rescaleParameter = 2 * directSunRadius/flareMeshRadius;
+                float rescaleParameter = 2 * directSunRadius / flareMeshRadius;
                 rescaleParameter /= Mathf.Clamp(invBloomStrength, 0.1f, 1f);
-                rescaleParameter *= SolarFlareWeather.Instance?.flareData?.FlareSize ?? 1.1f;
-                
+                rescaleParameter *= (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.flareData != null)
+                    ? SolarFlareWeather.Instance.flareData.FlareSize : 1.1f;
+
                 flareTransform.position = flarePosition;
                 flareTransform.rotation = directSun.transform.rotation;
                 flareTransform.SetParent(directSun.transform);
                 flareTransform.localRotation = Quaternion.Euler(90f, 0, 0);
                 flareTransform.localScale = new Vector3(1, 1, 1);
                 Vector3 coronaWorldScale = flareTransform.lossyScale;
-                flareTransform.localScale = new Vector3(rescaleParameter/ coronaWorldScale.x, rescaleParameter/ coronaWorldScale.y, rescaleParameter/ coronaWorldScale.z);
+                flareTransform.localScale = new Vector3(rescaleParameter / coronaWorldScale.x, rescaleParameter / coronaWorldScale.y, rescaleParameter / coronaWorldScale.z);
 
                 Color baseCoronaColor = lightData.flareTint;
                 Color temperatureColor = ColorFromTemperature(directSun.colorTemperature);
@@ -891,7 +907,7 @@ namespace VoxxWeatherPlugin.Weathers
                 RenderTextureFormat.Default,
                 RenderTextureReadWrite.Linear
             );
-            
+
             Graphics.Blit(texture, rt);
             Texture2D readableTexture = new Texture2D(texture.width, texture.height);
             RenderTexture previous = RenderTexture.active;
@@ -918,7 +934,7 @@ namespace VoxxWeatherPlugin.Weathers
             b /= pixels.Length;
             a /= pixels.Length;
 
-            return new Color(r, g, b, a); 
+            return new Color(r, g, b, a);
         }
 
         internal override void Reset()
@@ -935,12 +951,13 @@ namespace VoxxWeatherPlugin.Weathers
 
         internal void Update()
         {
-            float sunLuminosity = LevelManipulator.Instance.sunLightData?.intensity ?? 0f;
-            
+            float sunLuminosity = (LevelManipulator.Instance != null && LevelManipulator.Instance.sunLightData != null)
+                ? LevelManipulator.Instance.sunLightData.intensity : 0f;
+
             // TODO add check for sun's position relative to horizon???
-            if (auroraObject != null) 
+            if (auroraObject != null)
             {
-                auroraObject?.SetActive(sunLuminosity <= auroraSunThreshold);
+                auroraObject.SetActive(sunLuminosity <= auroraSunThreshold);
             }
         }
     }

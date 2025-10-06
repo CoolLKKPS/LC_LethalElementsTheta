@@ -4,7 +4,7 @@ namespace VoxxWeatherPlugin.Utils
 {
     static class SnowfallShaderIDs
     {
-        internal static readonly int FadeValue = Shader.PropertyToID("_FadeValue"); 
+        internal static readonly int FadeValue = Shader.PropertyToID("_FadeValue");
         internal static readonly int DepthTex = Shader.PropertyToID("_DepthTex");
         internal static readonly int FootprintsTex = Shader.PropertyToID("_FootprintsTex");
         internal static readonly int LightViewProjection = Shader.PropertyToID("_LightViewProjection");

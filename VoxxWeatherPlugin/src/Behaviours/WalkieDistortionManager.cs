@@ -6,15 +6,14 @@ using GameNetcodeStuff;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    public class WalkieDistortionManager: MonoBehaviour
+    public class WalkieDistortionManager : MonoBehaviour
     {
         internal Dictionary<AudioSource, GameObject> walkieSubTargets = new Dictionary<AudioSource, GameObject>();
         private static Dictionary<AudioSource, InterferenceDistortionFilter> cachedFilters = new Dictionary<AudioSource, InterferenceDistortionFilter>();
 
         internal AudioSource SplitWalkieTarget(GameObject target)
         {
-            if ((SolarFlareWeather.Instance?.IsActive ?? false) &&
-                SolarFlareWeather.Instance.flareData != null)
+            if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive && SolarFlareWeather.Instance.flareData != null)
             {
                 GameObject subTarget = new GameObject("SubTarget");
                 subTarget.transform.position = target.transform.position;
@@ -28,15 +27,14 @@ namespace VoxxWeatherPlugin.Behaviours
                 return audioSource;
             }
             else
-            { 
+            {
                 return target.AddComponent<AudioSource>();
             }
         }
 
         internal void DisposeWalkieTarget(AudioSource audioSource)
         {
-            if ((SolarFlareWeather.Instance?.IsActive ?? false) &&
-                SolarFlareWeather.Instance.flareData != null)
+            if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive && SolarFlareWeather.Instance.flareData != null)
             {
                 if (walkieSubTargets.TryGetValue(audioSource, out GameObject subTarget))
                 {
@@ -53,7 +51,8 @@ namespace VoxxWeatherPlugin.Behaviours
         public static void UpdateVoiceChatDistortion(AudioSource voiceSource, PlayerControllerB allPlayerScript, bool isUsingWalkieTalkie)
         {
 
-            bool shouldEnableDistortion = (SolarFlareWeather.Instance?.IsActive ?? false) && !allPlayerScript.isPlayerDead && isUsingWalkieTalkie && SolarFlareWeather.Instance.flareData != null;
+            bool shouldEnableDistortion = SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive && !allPlayerScript.isPlayerDead
+                && isUsingWalkieTalkie && SolarFlareWeather.Instance.flareData != null;
 
             InterferenceDistortionFilter? interferenceFilter = GetOrAddFilter(voiceSource);
 
@@ -74,7 +73,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         private static void EnableVoiceChatDistortion(InterferenceDistortionFilter interferenceFilter)
         {
-            if (!interferenceFilter.enabled && SolarFlareWeather.Instance?.flareData != null)
+            if (!interferenceFilter.enabled && SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.flareData != null)
             {
                 interferenceFilter.enabled = true;
                 interferenceFilter.distortionChance = SolarFlareWeather.Instance.flareData.RadioDistortionIntensity;

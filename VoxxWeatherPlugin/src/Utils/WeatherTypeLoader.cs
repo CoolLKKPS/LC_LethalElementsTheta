@@ -14,7 +14,7 @@ namespace VoxxWeatherPlugin.Utils
     {
         internal static string bundleName = "voxxweather.assetbundle";
         internal static GameObject? weatherSynchronizerPrefab = null!;
-        
+
         public static void RegisterHeatwaveWeather()
         {
             GameObject? heatwavePrefab = WeatherAssetLoader.LoadAsset<GameObject>(bundleName, "HeatwaveWeatherContainer");
@@ -82,13 +82,13 @@ namespace VoxxWeatherPlugin.Utils
 
             heatwaveWeatherController.WeatherDefinition = HeatwaveWeather;
             WeatherManager.RegisterWeather(HeatwaveWeather);
-            Debug.Log($"{PluginInfo.PLUGIN_GUID}: Heatwave weather registered!"); 
+            Debug.Log($"{PluginInfo.PLUGIN_GUID}: Heatwave weather registered!");
         }
 
         public static void RegisterFlareWeather()
         {
             GameObject? flareWeatherPrefab = WeatherAssetLoader.LoadAsset<GameObject>(bundleName, "SolarFlareWeatherContainer");
-            
+
             if (flareWeatherPrefab == null)
             {
                 Debug.LogError("Failed to load Solar Flare Weather assets. Weather registration failed.");
@@ -143,7 +143,7 @@ namespace VoxxWeatherPlugin.Utils
                     FilteringOption = new(FilteringOption.Exclude),
                     ScrapAmountMultiplier = new(1.25f),
                     ScrapValueMultiplier = new(0.95f),
-                    LevelWeights = new(["Arcadia@200", "Embrion@200", "Summit@300", "Incalescence@125", "Sierra@350", 
+                    LevelWeights = new(["Arcadia@200", "Embrion@200", "Summit@300", "Incalescence@125", "Sierra@350",
                         "$Canyon@100", "$Wasteland@100", "$Tundra@90"]),
                     WeatherToWeatherWeights = new(["Solar Flare@25", "Blackout@100", "Heatwave@100", "Eclipsed@10"]),
                     DefaultWeight = new(60),
@@ -180,7 +180,7 @@ namespace VoxxWeatherPlugin.Utils
             GameObject effectObject = blizzardVFXManager.gameObject;
             effectObject.SetActive(false);
 
-            blizzardWeatherController.VFXManager = blizzardVFXManager;                                     
+            blizzardWeatherController.VFXManager = blizzardVFXManager;
 
             // Fix broken references (WHY, UNITY, WHY)
 
@@ -272,11 +272,11 @@ namespace VoxxWeatherPlugin.Utils
             effectPermanentObject.SetActive(false);
 
             SnowfallVFXManager snowfallVFXManager = snowfallContainer.GetComponentInChildren<SnowfallVFXManager>(true);
-            
+
             GameObject effectObject = snowfallVFXManager.gameObject;
             effectObject.SetActive(false);
 
-            snowfallWeatherController.VFXManager = snowfallVFXManager;       
+            snowfallWeatherController.VFXManager = snowfallVFXManager;
 
             VisualEffectAsset? snowVFXAsset = Configuration.snowVfxLighting.Value ?
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "SnowVFXLit") :
@@ -288,7 +288,7 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
 
-            
+
             VisualEffect snowVFX = snowfallVFXManager.snowVFXContainer!.GetComponent<VisualEffect>();
             snowVFX.visualEffectAsset = snowVFXAsset;
             snowVFX.SetFloat("spawnRateMultiplier", Configuration.snowParticlesMultiplier.Value);
@@ -347,8 +347,8 @@ namespace VoxxWeatherPlugin.Utils
             string[] keys = ["footprintsTrackerVFX", "lowcapFootprintsTrackerVFX", "itemTrackerVFX", "shovelVFX"];
             LevelManipulator.snowTrackersDict = keys.Zip(levelManipulatorController.footprintsTrackerVFX,
                                                             (k, v) => new { k, v })
-                                                            .ToDictionary(x => x.k, x => x.v);     
-            
+                                                            .ToDictionary(x => x.k, x => x.v);
+
             // Fix broken references (WHY, UNITY, WHY)
 
             Shader? overlayShader = WeatherAssetLoader.LoadAsset<Shader>(bundleName, "SnowLitPass");
@@ -370,8 +370,8 @@ namespace VoxxWeatherPlugin.Utils
             levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, Configuration.tesselationMaxDistance.Value);
             levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationFadeDistance, Configuration.tesselationFadeDistance.Value);
             levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, Configuration.tesselationMaxDistance.Value);
-            
-            return true;   
+
+            return true;
         }
 
         public static bool LoadWeatherSynchronizer()
@@ -383,9 +383,9 @@ namespace VoxxWeatherPlugin.Utils
                 return false;
             }
 
-            NetworkManager.Singleton.AddNetworkPrefab(weatherSynchronizerPrefab); 
+            NetworkManager.Singleton.AddNetworkPrefab(weatherSynchronizerPrefab);
 
-            return true;   
+            return true;
         }
 
         public static void RegisterToxicSmogWeather()
@@ -410,7 +410,7 @@ namespace VoxxWeatherPlugin.Utils
             GameObject effectObject = toxicSmogVFXManager.gameObject;
             effectObject.SetActive(false);
 
-            toxicSmogWeatherController.VFXManager = toxicSmogVFXManager;      
+            toxicSmogWeatherController.VFXManager = toxicSmogVFXManager;
 
             // Fix broken references (WHY, UNITY, WHY)
             VisualEffectAsset? toxicFumesVFXAsset = WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "ToxicFumesVFX");
@@ -421,7 +421,7 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
 
-            VisualEffect? toxicFumesVFX = toxicSmogVFXManager.hazardPrefab?.GetComponent<VisualEffect>();
+            VisualEffect? toxicFumesVFX = toxicSmogVFXManager.hazardPrefab != null ? toxicSmogVFXManager.hazardPrefab.GetComponent<VisualEffect>() : null;
             toxicFumesVFX!.visualEffectAsset = toxicFumesVFXAsset;
 
             toxicSmogContainer.SetActive(true);

@@ -20,9 +20,10 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPostfix]
         private static void PoisoningPatchPrefix(PlayerControllerB __instance)
         {
-            if (!(ToxicSmogWeather.Instance?.IsActive ?? false) || __instance != GameNetworkManager.Instance?.localPlayerController)
+            if (!(ToxicSmogWeather.Instance != null && ToxicSmogWeather.Instance.IsActive) || __instance != ((GameNetworkManager.Instance != null)
+                ? GameNetworkManager.Instance.localPlayerController : null))
                 return;
-            
+
             if (__instance.isPlayerDead || __instance.isInHangarShipRoom || __instance.isInElevator)
             {
                 PlayerEffectsManager.isPoisoned = false;

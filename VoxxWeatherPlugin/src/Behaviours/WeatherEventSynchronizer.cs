@@ -3,7 +3,7 @@ using VoxxWeatherPlugin.Weathers;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    public class WeatherEventSynchronizer: NetworkBehaviour
+    public class WeatherEventSynchronizer : NetworkBehaviour
     {
         public static WeatherEventSynchronizer Instance { get; private set; } = null!;
 
@@ -33,9 +33,10 @@ namespace VoxxWeatherPlugin.Behaviours
         {
             if (malfunctionObjectRef.TryGet(out NetworkBehaviour malfunctionObject))
             {
-                if (SolarFlareWeather.Instance?.electricMalfunctionData?.TryGetValue(malfunctionObject, out ElectricMalfunctionData malfunctionData) ?? false)
+                if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.electricMalfunctionData != null
+                    && SolarFlareWeather.Instance.electricMalfunctionData.TryGetValue(malfunctionObject, out ElectricMalfunctionData malfunctionData))
                 {
-                    StartCoroutine(SolarFlareWeather.Instance?.ElectricMalfunctionCoroutine(malfunctionData));
+                    StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
                 }
             }
         }
@@ -44,9 +45,10 @@ namespace VoxxWeatherPlugin.Behaviours
         internal void ResolveMalfunctionClientRpc(int radMechNestIndex)
         {
             EnemyAINestSpawnObject radMechNest = RoundManager.Instance.enemyNestSpawnObjects[radMechNestIndex];
-            if (SolarFlareWeather.Instance?.electricMalfunctionData?.TryGetValue(radMechNest, out ElectricMalfunctionData malfunctionData) ?? false)
+            if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.electricMalfunctionData != null
+                && SolarFlareWeather.Instance.electricMalfunctionData.TryGetValue(radMechNest, out ElectricMalfunctionData malfunctionData))
             {
-                StartCoroutine(SolarFlareWeather.Instance?.ElectricMalfunctionCoroutine(malfunctionData));
+                StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
             }
         }
 

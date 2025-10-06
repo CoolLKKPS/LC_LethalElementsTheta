@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace VoxxWeatherPlugin.Utils
 {
-    
+
     [Serializable]
     public struct EntitySnowData
     {
@@ -24,7 +24,7 @@ namespace VoxxWeatherPlugin.Utils
             w = Vector3.zero;
             uv = Vector2.zero;
             textureIndex = -1; // -1 means not on valid ground
-            snowThickness = 0; 
+            snowThickness = 0;
         }
     }
 
@@ -127,5 +127,5 @@ namespace VoxxWeatherPlugin.Utils
     }
 
 #endif
-    
+
 }

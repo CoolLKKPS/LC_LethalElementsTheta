@@ -27,7 +27,7 @@ namespace VoxxWeatherPlugin.Utils
                 }
                 return;
             }
-            
+
             if (cameraRenderTimes.TryAdd(camera, Time.time))
             {
                 HDAdditionalCameraData cameraData = camera.GetComponent<HDAdditionalCameraData>();

@@ -34,7 +34,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 normalizedTimeInHeatwave += Time.deltaTime / overheatThreshold;
                 normalizedTimeInHeatwave = Mathf.Clamp01(normalizedTimeInHeatwave);
-                
+
                 if (normalizedTimeInHeatwave >= 1)
                 {
                     PlayTurbulenceSoundClientRpc();

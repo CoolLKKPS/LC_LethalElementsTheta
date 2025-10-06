@@ -6,7 +6,7 @@ namespace VoxxWeatherPlugin.Utils
     public static class Configuration
     {
         public static ConfigFile Config { get; private set; }
-        
+
         // Config entries
         #region Weather
         public static ConfigEntry<bool> EnableHeatwaveWeather; //
@@ -15,7 +15,7 @@ namespace VoxxWeatherPlugin.Utils
         public static ConfigEntry<bool> EnableBlizzardWeather; //
         public static ConfigEntry<bool> EnableToxicSmogWeather; //
         #endregion
-        
+
         #region Heatwave
         public static ConfigEntry<float> HeatwaveParticlesSpawnRate; //
         public static ConfigEntry<float> TimeUntilStrokeMin; //
@@ -49,40 +49,40 @@ namespace VoxxWeatherPlugin.Utils
         #endregion
 
         #region Snowfall
-        public static ConfigEntry<float>  minSnowHeight; //
-        public static ConfigEntry<float>  maxSnowHeight; //
-        public static ConfigEntry<float>  minTimeToFullSnow; //
-        public static ConfigEntry<float>  maxTimeToFullSnow; //
-        public static ConfigEntry<bool>   freezeWater; //
-        public static ConfigEntry<float>  underSnowFilterMultiplier; //
-        public static ConfigEntry<float>  frostbiteFilterMultiplier; //
-        public static ConfigEntry<int>  frostbiteDamage; //
-        public static ConfigEntry<float>  frostbiteDamageInterval; //
-        public static ConfigEntry<float>  timeToWarmUp; //
-        public static ConfigEntry<bool>  enableEasterEgg; //
-        public static ConfigEntry<bool>  patchModdedEnemies; //
-        public static ConfigEntry<bool>  snowAffectsEnemies; //
-        public static ConfigEntry<string>  enemySnowBlacklist; //
+        public static ConfigEntry<float> minSnowHeight; //
+        public static ConfigEntry<float> maxSnowHeight; //
+        public static ConfigEntry<float> minTimeToFullSnow; //
+        public static ConfigEntry<float> maxTimeToFullSnow; //
+        public static ConfigEntry<bool> freezeWater; //
+        public static ConfigEntry<float> underSnowFilterMultiplier; //
+        public static ConfigEntry<float> frostbiteFilterMultiplier; //
+        public static ConfigEntry<int> frostbiteDamage; //
+        public static ConfigEntry<float> frostbiteDamageInterval; //
+        public static ConfigEntry<float> timeToWarmUp; //
+        public static ConfigEntry<bool> enableEasterEgg; //
+        public static ConfigEntry<bool> patchModdedEnemies; //
+        public static ConfigEntry<bool> snowAffectsEnemies; //
+        public static ConfigEntry<string> enemySnowBlacklist; //
         #endregion
 
         #region Blizzard
-        public static ConfigEntry<float>  minSnowHeightBlizzard; //
-        public static ConfigEntry<float>  maxSnowHeightBlizzard; //
-        public static ConfigEntry<float>  minTimeToFullSnowBlizzard; //
-        public static ConfigEntry<float>  maxTimeToFullSnowBlizzard; //
-        public static ConfigEntry<float>  minTimeUntilFrostbite; //
-        public static ConfigEntry<float>  maxTimeUntilFrostbite; //
-        public static ConfigEntry<float>  minWindForce; //
-        public static ConfigEntry<float>  maxWindForce; //
-        public static ConfigEntry<float>  minWaveInterval; //
-        public static ConfigEntry<float>  maxWaveInterval; //
-        public static ConfigEntry<int>    minWaveCount; //
-        public static ConfigEntry<int>    maxWaveCount; //
-        public static ConfigEntry<int>  chillingWaveDamage; //
-        public static ConfigEntry<float>  blizzardAmbientVolume; //
-        public static ConfigEntry<float>  blizzardWaveVolume; //
-        public static ConfigEntry<float>  blizzardFogMeanFreePathMin; //
-        public static ConfigEntry<float>  blizzardFogMeanFreePathMax; //
+        public static ConfigEntry<float> minSnowHeightBlizzard; //
+        public static ConfigEntry<float> maxSnowHeightBlizzard; //
+        public static ConfigEntry<float> minTimeToFullSnowBlizzard; //
+        public static ConfigEntry<float> maxTimeToFullSnowBlizzard; //
+        public static ConfigEntry<float> minTimeUntilFrostbite; //
+        public static ConfigEntry<float> maxTimeUntilFrostbite; //
+        public static ConfigEntry<float> minWindForce; //
+        public static ConfigEntry<float> maxWindForce; //
+        public static ConfigEntry<float> minWaveInterval; //
+        public static ConfigEntry<float> maxWaveInterval; //
+        public static ConfigEntry<int> minWaveCount; //
+        public static ConfigEntry<int> maxWaveCount; //
+        public static ConfigEntry<int> chillingWaveDamage; //
+        public static ConfigEntry<float> blizzardAmbientVolume; //
+        public static ConfigEntry<float> blizzardWaveVolume; //
+        public static ConfigEntry<float> blizzardFogMeanFreePathMin; //
+        public static ConfigEntry<float> blizzardFogMeanFreePathMax; //
         #endregion
 
         #region Snow & Blizzard Graphics
@@ -96,26 +96,26 @@ namespace VoxxWeatherPlugin.Utils
         public static ConfigEntry<bool> snowCastsShadows; //
         public static ConfigEntry<bool> addFootprints; //
         public static ConfigEntry<int> trackedEntityNumber; //
-        public static ConfigEntry<int>  depthBufferResolution; //
-        public static ConfigEntry<int>  trackerMapResolution; //
-        public static ConfigEntry<int>  snowDepthMapResolution; //
-        public static ConfigEntry<bool>  bakeSnowDepthMipmaps; //
-        public static ConfigEntry<int>  PCFKernelSize; //
-        public static ConfigEntry<int>  minTesselationFactor; //
-        public static ConfigEntry<int>  maxTesselationFactor; //
-        public static ConfigEntry<bool>  adaptiveTesselation; //
-        public static ConfigEntry<float>  tesselationFadeDistance; //
-        public static ConfigEntry<float>  tesselationMaxDistance; //
-        public static ConfigEntry<bool>  softSnowEdges; //
-        public static ConfigEntry<bool>  enableSnowTracks; //
+        public static ConfigEntry<int> depthBufferResolution; //
+        public static ConfigEntry<int> trackerMapResolution; //
+        public static ConfigEntry<int> snowDepthMapResolution; //
+        public static ConfigEntry<bool> bakeSnowDepthMipmaps; //
+        public static ConfigEntry<int> PCFKernelSize; //
+        public static ConfigEntry<int> minTesselationFactor; //
+        public static ConfigEntry<int> maxTesselationFactor; //
+        public static ConfigEntry<bool> adaptiveTesselation; //
+        public static ConfigEntry<float> tesselationFadeDistance; //
+        public static ConfigEntry<float> tesselationMaxDistance; //
+        public static ConfigEntry<bool> softSnowEdges; //
+        public static ConfigEntry<bool> enableSnowTracks; //
         public static ConfigEntry<float> tracksCameraFPS;//
-        public static ConfigEntry<bool>  enableVFXCollisions; //
+        public static ConfigEntry<bool> enableVFXCollisions; //
         public static ConfigEntry<float> collisionCamerasFPS;//
         #endregion
 
         #region Snow & Blizzard Mesh and Terrain Processing
         public static ConfigEntry<bool> asyncProcessing; //
-        public static ConfigEntry<string>  meshProcessingWhitelist; //
+        public static ConfigEntry<string> meshProcessingWhitelist; //
         public static ConfigEntry<bool> subdivideMesh; //
         public static ConfigEntry<bool> smoothMesh; //
         public static ConfigEntry<bool> useLevelBounds; //
@@ -139,12 +139,12 @@ namespace VoxxWeatherPlugin.Utils
         public static ConfigEntry<int> MaxFumesAmount; //
         public static ConfigEntry<float> FactoryAmountMultiplier; //
         #endregion
-        
+
         internal static void Initialize(BepInPlugin metadata)
         {
-            string configRoot = Paths.ConfigPath; 
-			Config = new ConfigFile(Utility.CombinePaths(configRoot, metadata.GUID + ".cfg"), false, metadata);
-            
+            string configRoot = Paths.ConfigPath;
+            Config = new ConfigFile(Utility.CombinePaths(configRoot, metadata.GUID + ".cfg"), false, metadata);
+
             #region Weather
             EnableHeatwaveWeather = Config.Bind("Weather", "EnableHeatwaveWeather", true, "Enable or disable Heatwave weather");
             EnableSolarFlareWeather = Config.Bind("Weather", "EnableSolarFlareWeather", true, "Enable or disable Solar Flare weather");
@@ -152,7 +152,7 @@ namespace VoxxWeatherPlugin.Utils
             EnableBlizzardWeather = Config.Bind("Weather", "EnableBlizzardWeather", true, "Enable or disable Blizzard weather");
             EnableToxicSmogWeather = Config.Bind("Weather", "EnableToxicSmogWeather", true, "Enable or disable Toxic Smog weather");
             #endregion
-            
+
             #region Heatwave
             HeatwaveParticlesSpawnRate = Config.Bind("Heatwave",
                                                     "ParticlesSpawnRate",
@@ -169,7 +169,7 @@ namespace VoxxWeatherPlugin.Utils
                                             80f,
                                             new ConfigDescription("Maximal time in seconds until heatstroke (max). Must be higher than min! Actual time is random between min and max",
                                                                     new AcceptableValueRange<float>(1, 9999f)));
-            
+
             HeathazeDistortionStrength = Config.Bind("Heatwave",
                                                     "HeathazeDistortionStrength",
                                                     8f,
@@ -181,7 +181,7 @@ namespace VoxxWeatherPlugin.Utils
                                                     new ConfigDescription("Multiplier for the heat haze filter. Lower values make the filter less intense. 0 will disable the filter",
                                                                             new AcceptableValueRange<float>(0, 1f)));
             #endregion
-            
+
             #region Solar Flare
             AuroraHeight = Config.Bind("SolarFlare",
                                         "AuroraHeight",
@@ -302,7 +302,7 @@ namespace VoxxWeatherPlugin.Utils
                                         "maxSnowHeight",
                                         3f,
                                         new ConfigDescription("Maximum snow height at the end of the day in meters. Actual snow height is random between min and max.",
-                                                            new AcceptableValueRange<float>(0, 10f)));  
+                                                            new AcceptableValueRange<float>(0, 10f)));
 
             minTimeToFullSnow = Config.Bind("Snowfall",
                                             "minTimeToFullSnow",
@@ -346,17 +346,17 @@ namespace VoxxWeatherPlugin.Utils
             enableEasterEgg = Config.Bind("Snowfall",
                                         "enableEasterEgg",
                                         true,
-                                        "Allow festivities during snowfall weather during special time of the year.");   
+                                        "Allow festivities during snowfall weather during special time of the year.");
             patchModdedEnemies = Config.Bind("Snowfall",
                                             "patchModdedEnemies",
                                             false,
                                             "Attempt to patch modded enemies to be affected by snowfall weather (only works if they inherit from vanilla EnemyAI class)).");
-            
+
             snowAffectsEnemies = Config.Bind("Snowfall",
                                             "snowAffectsEnemies",
                                             true,
                                             "HOST ONLY! Allow snowfall weather to affect enemies. If disabled enemies will not be slowed down by snow.");
-            
+
             enemySnowBlacklist = Config.Bind("Snowfall",
                                             "enemySpawnBlacklist",
                                             "Docile Locust Bees;Red Locust Bees;Leaf boy;Ogopogo;Vermin",
@@ -370,103 +370,103 @@ namespace VoxxWeatherPlugin.Utils
                                                 1.0f,
                                                 new ConfigDescription("Minimum snow height at the end of the day in meters during blizzard weather. Actual snow height is random between min and max.",
                                                                     new AcceptableValueRange<float>(0, 10f)));
-            
+
             maxSnowHeightBlizzard = Config.Bind("Blizzard",
                                                 "maxSnowHeightBlizzard",
                                                 1.8f,
                                                 new ConfigDescription("Maximum snow height at the end of the day in meters during blizzard weather. Actual snow height is random between min and max.",
                                                                     new AcceptableValueRange<float>(0, 10f)));
-            
+
             minTimeToFullSnowBlizzard = Config.Bind("Blizzard",
                                                     "minTimeToFullSnowBlizzard",
                                                     0.4f,
                                                     new ConfigDescription("Minimum fraction of the day until snow reaches max height during blizzard weather. Actual time is random between min and max.",
                                                                         new AcceptableValueRange<float>(0, 1f)));
-            
+
             maxTimeToFullSnowBlizzard = Config.Bind("Blizzard",
                                                     "maxTimeToFullSnowBlizzard",
                                                     0.7f,
                                                     new ConfigDescription("Maximum fraction of the day until snow reaches max height during blizzard weather. Actual time is random between min and max.",
                                                                         new AcceptableValueRange<float>(0, 1f)));
 
-            
+
             minTimeUntilFrostbite = Config.Bind("Blizzard",
                                                 "minTimeUntilFrostbite",
                                                 40f,
                                                 new ConfigDescription("Minimum time in seconds until frostbite reaches full intensity, effect starts to affect the player at 50% of chosen time. Actual time is random between min and max. Snowfall weather will only use 40% of this value as a constant.",
                                                                     new AcceptableValueRange<float>(0, 9999f)));
-            
+
             maxTimeUntilFrostbite = Config.Bind("Blizzard",
                                                 "maxTimeUntilFrostbite",
                                                 100f,
                                                 new ConfigDescription("Maximum time in seconds until frostbite reaches full intensity, effect starts to affect the player at 50% of chosen time. Actual time is random between min and max.",
                                                                     new AcceptableValueRange<float>(0, 9999f)));
-            
+
             minWindForce = Config.Bind("Blizzard",
                                         "minWindForce",
                                         0.37f,
                                         new ConfigDescription("Minimum wind force during blizzard weather. Actual wind force is random between min and max.",
-                                                            new AcceptableValueRange<float>(0, 1f))); 
-            
+                                                            new AcceptableValueRange<float>(0, 1f)));
+
             maxWindForce = Config.Bind("Blizzard",
                                         "maxWindForce",
                                         0.6f,
                                         new ConfigDescription("Maximum wind force during blizzard weather. At very high values you might not be able to move while standing in deep snow! Actual wind force is random between min and max.",
                                                             new AcceptableValueRange<float>(0, 1f)));
-            
+
             minWaveInterval = Config.Bind("Blizzard",
                                         "minWaveInterval",
                                         60f,
                                         new ConfigDescription("Minimum time in seconds between chilling waves of frost. Actual time is random between min and max.",
-                                                            new AcceptableValueRange<float>(0, 9999f)));  
-            
+                                                            new AcceptableValueRange<float>(0, 9999f)));
+
             maxWaveInterval = Config.Bind("Blizzard",
                                         "maxWaveInterval",
                                         180f,
                                         new ConfigDescription("Maximum time in seconds between chilling waves of frost. Actual time is random between min and max.",
                                                             new AcceptableValueRange<float>(0, 9999f)));
-            
-            minWaveCount = Config.Bind("Blizzard", 
+
+            minWaveCount = Config.Bind("Blizzard",
                                         "minWaveCount",
                                         1,
                                         new ConfigDescription("Minimum number of chilling waves of frost that will strike in succession. Actual number is random between min and max.",
                                                             new AcceptableValueRange<int>(0, 99)));
-            
+
             maxWaveCount = Config.Bind("Blizzard",
                                         "maxWaveCount",
                                         5,
                                         new ConfigDescription("Maximum number of chilling waves of frost that will strike in succession. Actual number is random between min and max.",
                                                             new AcceptableValueRange<int>(0, 99)));
-            
+
             chillingWaveDamage = Config.Bind("Blizzard",
                                             "chillingWaveDamage",
                                             20,
                                             new ConfigDescription("Damage dealt by each chilling wave of frost if you get caught in one.",
                                                                 new AcceptableValueRange<int>(0, 99)));
-            
+
             blizzardAmbientVolume = Config.Bind("Blizzard",
                                                 "blizzardAmbientVolume",
                                                 1f,
                                                 new ConfigDescription("Volume of the blizzard ambient sound. 0 is silent, 1 is full volume.",
                                                                     new AcceptableValueRange<float>(0, 1f)));
-            
+
             blizzardWaveVolume = Config.Bind("Blizzard",
                                             "blizzardWaveVolume",
                                             1f,
                                             new ConfigDescription("Volume of the blizzard wave sound. 0 is silent, 1 is full volume.",
                                                                 new AcceptableValueRange<float>(0, 1f)));
-            
+
             blizzardFogMeanFreePathMin = Config.Bind("Blizzard",
                                                     "blizzardFogMeanFreePathMin",
                                                     5f,
                                                     new ConfigDescription("Minimum mean free path for blizzard fog in meters. Actual mean free path is random between min and max. Mean free path is the distance where visibility is reduced by 63%",
                                                                         new AcceptableValueRange<float>(0.1f, 100)));
-            
+
             blizzardFogMeanFreePathMax = Config.Bind("Blizzard",
                                                     "blizzardFogMeanFreePathMax",
                                                     15f,
                                                     new ConfigDescription("Maximum mean free path for blizzard fog in meters. Actual mean free path is random between min and max.",
-                                                                        new AcceptableValueRange<float>(0.1f, 100)));  
+                                                                        new AcceptableValueRange<float>(0.1f, 100)));
             #endregion
 
             #region Snow & Blizzard Graphics
@@ -475,47 +475,47 @@ namespace VoxxWeatherPlugin.Utils
                                             1f,
                                             new ConfigDescription("Multiplier for the amount of snow/blizzard particles. Lower values may reduce performance impact but also visual quality.",
                                                                 new AcceptableValueRange<float>(0, 10f)));
-            
+
             blizzardWaveParticlesMultiplier = Config.Bind("Snow Graphics",
                                                         "blizzardWaveParticlesMultiplier",
                                                         1f,
                                                         new ConfigDescription("Multiplier for the amount of blizzard wave particles. Lower values may reduce performance impact but also reduce density of particles.",
-                                                                            new AcceptableValueRange<float>(0, 10f)));  
+                                                                            new AcceptableValueRange<float>(0, 10f)));
             useParticleBlizzardFog = Config.Bind("Snow Graphics",
                                             "useParticleBlizzardFog",
                                             false,
                                             "Enable particle based blizzard fog effect. Disabling this can improve performance, at the cost of visual quality.");
-            
+
             useVolumetricBlizzardFog = Config.Bind("Snow Graphics",
                                                 "useVolumetricBlizzardFog",
                                                 true,
                                                 "Enable volumetric blizzard fog effect. Disabling this can improve performance, at the cost of visual quality. More performance friendly than particle based fog.");
-            
+
             snowVfxLighting = Config.Bind("Snow Graphics",
                                         "snowVfxLighting",
                                         false,
                                         "Determines if snow particles are affected by shadows and lighting. Disabling this will make snow particles appear the same regardless of lighting conditions, but significantly improves the performance.");
-            
+
             blizzardWaveVfxLighting = Config.Bind("Snow Graphics",
                                                 "blizzardWaveVfxLighting",
                                                 false,
                                                 "Determines if blizzard wave particles are affected by shadows and lighting. Disabling this will make blizzard wave particles appear the same regardless of lighting conditions, but significantly improves the performance.");
-            
+
             useOpaqueSnowMaterial = Config.Bind("Snow Graphics",
                                                 "useOpaqueSnowMaterial",
                                                 false,
                                                 "Use opaque snow material. Disabling this will use a transparent snow material, which will allow for more realistic snow overlay rendering, but will not work with the posterization effect.");
-            
+
             snowCastsShadows = Config.Bind("Snow Graphics",
                                         "snowCastsShadows",
                                         false,
                                         "Snow will cast shadows on the terrain. Disabling this will improve performance, this is quite resource intensive!");
-            
+
             addFootprints = Config.Bind("Snow Graphics",
                                         "addFootprints",
                                         false,
                                         "Override level settings and enable vanilla footprints during the weather. Disabling this will use the level settings for footprints.");
-            
+
             trackedEntityNumber = Config.Bind("Snow Graphics",
                                             "trackedEntityNumber",
                                             64,
@@ -564,7 +564,7 @@ namespace VoxxWeatherPlugin.Utils
                                                 60f,
                                                 new ConfigDescription("Distance in meters from the camera where snow mesh quality will start to decrease. Lower values improve performance, higher values improve visual quality. Must be lower than tesselationMaxDistance!",
                                                                     new AcceptableValueRange<float>(0, 2000f)));
-                        
+
             tesselationMaxDistance = Config.Bind("Snow Graphics",
                                                 "tesselationMaxDistance",
                                                 120f,
@@ -579,24 +579,24 @@ namespace VoxxWeatherPlugin.Utils
                                             "enableSnowTracks",
                                             true,
                                             "Enable snow tracks. This will render snow tracks on the ground where player or enemies walk and will affect walking speed. Disabling this will improve performance.");
-            
+
             tracksCameraFPS = Config.Bind("Snow Graphics",
                                             "tracksCameraFPS",
                                             5f,
                                             new ConfigDescription("Target FPS for camera that is used to update snow tracks. Lower values may increase performance, but tracks will appear with a delay.",
                                                 new AcceptableValueRange<float>(0.01f, 60f)));
-            
+
             enableVFXCollisions = Config.Bind("Snow Graphics",
                                             "Enable VFX Collisions",
                                             true,
                                             "Enable VFX collisions for blizzard wind. This will render an additional depth buffer to make snow particles collide with the terrain and objects. Disabling this will improve performance.");
-            
+
             collisionCamerasFPS = Config.Bind("Snow Graphics",
                                             "collisionCamerasFPS",
                                             10f,
                                             new ConfigDescription("Target FPS for cameras that are used to calculate vfx collisions. Lower values will increase performance, but if player moves very fast some particles might go through objects occasionally if this value is too low",
                                                 new AcceptableValueRange<float>(0.01f, 60f)));
-           
+
             #endregion
 
             #region Mesh & Terrain processing
@@ -604,7 +604,7 @@ namespace VoxxWeatherPlugin.Utils
                                         "asyncProcessing",
                                         true,
                                         "Enable asynchronous mesh and terrain processing. Disabling this will process everything in the main thread, which will increase loading times.");
-                                        
+
             meshProcessingWhitelist = Config.Bind("Mesh & Terrain Processing",
                                                 "meshProcessingWhitelist",
                                                 "Offense;Assurance;Artifice;Experimentation;March",
@@ -621,7 +621,7 @@ namespace VoxxWeatherPlugin.Utils
                                         "useLevelBounds",
                                         true,
                                         "Use level bounds to limit mesh and terrain processing to the playable area. Disabling this will process the whole level, which will improve the entire levels geometry, but will increase loading times");
-            
+
             // TerraMesh related
 
             refineMesh = Config.Bind("Mesh & Terrain Processing",
@@ -700,7 +700,7 @@ namespace VoxxWeatherPlugin.Utils
                                                 new ConfigDescription("Multiplier for the amount of fumes placed in the interior with respect to outside. Keep in mind that their amount is also multiplied by a dungeon size!",
                                                                     new AcceptableValueRange<float>(0, 10f)));
             #endregion
-                                                            
+
         }
     }
 }

@@ -32,7 +32,7 @@ namespace VoxxWeatherPlugin.Behaviours
         private EntitySnowData[]? entitySnowDataInArray;
         [SerializeField]
         private EntitySnowData[]? entitySnowDataOutArray;
-        
+
         private ComputeBuffer? entityDataComputeBuffer;
         private AsyncGPUReadbackRequest _readbackRequest;
         [SerializeField]
@@ -176,11 +176,11 @@ namespace VoxxWeatherPlugin.Behaviours
                     VisualEffect? snowTracker = kvp.Value.trackerVFX;
                     SnowTrackerDebugData data = new()
                     {
-                        isActive = snowTracker?.GetBool("isTracking") ?? false,
-                        particleSize = snowTracker?.GetFloat("particleSize") ?? 0f,
-                        lifetimeMultiplier = snowTracker?.GetFloat("lifetimeMultiplier") ?? 0f,
-                        footprintStrength = snowTracker?.GetFloat("footprintStrength") ?? 0f,
-                        particleNumber = snowTracker?.aliveParticleCount ?? 0,
+                        isActive = snowTracker != null && snowTracker.GetBool("isTracking"),
+                        particleSize = snowTracker != null ? snowTracker.GetFloat("particleSize") : 0f,
+                        lifetimeMultiplier = snowTracker != null ? snowTracker.GetFloat("lifetimeMultiplier") : 0f,
+                        footprintStrength = snowTracker != null ? snowTracker.GetFloat("footprintStrength") : 0f,
+                        particleNumber = snowTracker != null ? snowTracker.aliveParticleCount : 0,
                     };
                     snowTrackerData[kvp.Key.gameObject] = data;
                 }
@@ -196,9 +196,12 @@ namespace VoxxWeatherPlugin.Behaviours
             }
 
             // Update dynamic input parameters
-            snowThicknessComputeShader?.SetVector(SnowfallShaderIDs.ShipPosition, snowfallData.shipPosition);
-            snowThicknessComputeShader?.SetFloat(SnowfallShaderIDs.SnowNoisePower, snowfallData.snowIntensity);
-            snowThicknessComputeShader?.SetMatrix(SnowfallShaderIDs.FootprintsViewProjection, snowfallData.tracksWorldToClipMatrix ?? Matrix4x4.identity);
+            if (snowThicknessComputeShader != null)
+            {
+                snowThicknessComputeShader.SetVector(SnowfallShaderIDs.ShipPosition, snowfallData.shipPosition);
+                snowThicknessComputeShader.SetFloat(SnowfallShaderIDs.SnowNoisePower, snowfallData.snowIntensity);
+                snowThicknessComputeShader.SetMatrix(SnowfallShaderIDs.FootprintsViewProjection, snowfallData.tracksWorldToClipMatrix ?? Matrix4x4.identity);
+            }
 
             if (canDispatch)
             {
@@ -207,7 +210,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 // Dispatch compute shader
                 int threadGroupSizeX = Mathf.CeilToInt(Mathf.Sqrt(MaxEntityCount));
                 int threadGroupSizeY = Mathf.CeilToInt(Mathf.Sqrt(MaxEntityCount));
-                snowThicknessComputeShader?.Dispatch(kernelHandle, threadGroupSizeX, threadGroupSizeY, 1);
+                if (snowThicknessComputeShader != null)
+                    snowThicknessComputeShader.Dispatch(kernelHandle, threadGroupSizeX, threadGroupSizeY, 1);
 
                 // Read result
 
@@ -280,11 +284,12 @@ namespace VoxxWeatherPlugin.Behaviours
             }
             if (entity == GameNetworkManager.Instance.localPlayerController)
             {
-                return Mathf.Clamp(data.Value.snowThickness - snowThicknessOffset, 0, 2*LevelManipulator.Instance?.finalSnowHeight ?? 0f);
+                return Mathf.Clamp(data.Value.snowThickness - snowThicknessOffset, 0, 2 * (LevelManipulator.Instance != null
+                    ? LevelManipulator.Instance.finalSnowHeight : 0f));
             }
             return data.Value.snowThickness;
         }
-        
+
         /// <summary>
         /// Gets the snow data for an entity.
         /// </summary>
@@ -320,7 +325,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             bool hitGround = StoreSnowData(entity, index, hit);
 
-            if (entity == GameNetworkManager.Instance.localPlayerController) 
+            if (entity == GameNetworkManager.Instance.localPlayerController)
             {
                 snowThicknessOffset = 0f;
                 isOnIce = iceObjects.Contains(hit.collider.gameObject);
@@ -332,16 +337,18 @@ namespace VoxxWeatherPlugin.Behaviours
                 SnowPatches.IsSnowActive())
             {
                 // For players, check hits.Length objects below the first hit object because snow might protrude through it due to precision errors in the depth buffer
-                int numHits = Physics.RaycastNonAlloc(new Ray(hit.point - 0.05f * Vector3.up, Vector3.down), hits, LevelManipulator.Instance?.finalSnowHeight ?? 0f);
+                int numHits = Physics.RaycastNonAlloc(new Ray(hit.point - 0.05f * Vector3.up, Vector3.down), hits,
+                    LevelManipulator.Instance != null ? LevelManipulator.Instance.finalSnowHeight : 0f);
                 for (int i = 0; i < numHits; i++)
                 {
                     if (groundToIndex.ContainsKey(hits[i].collider.gameObject))
                     {
                         StoreSnowData(entity, index, hits[i]);
-                        if (player == GameNetworkManager.Instance.localPlayerController) 
+                        if (player == GameNetworkManager.Instance.localPlayerController)
                         {
                             // For the local player, calculate the snow thickness offset based on the difference between the player's feet position and the hit point
-                            snowThicknessOffset = Mathf.Clamp(feetPositionY - hits[i].point.y, 0f, LevelManipulator.Instance?.finalSnowHeight ?? 0f);
+                            snowThicknessOffset = Mathf.Clamp(feetPositionY - hits[i].point.y, 0f, LevelManipulator.Instance != null
+                                ? LevelManipulator.Instance.finalSnowHeight : 0f);
                         }
                         break;
                     }
@@ -426,7 +433,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 int textureIndex = groundToIndex[hit.collider.gameObject];
                 data!.w = hit.point;
-                data.uv = new Vector2(hit.textureCoord2.x, hit.textureCoord2.y); 
+                data.uv = new Vector2(hit.textureCoord2.x, hit.textureCoord2.y);
                 data.textureIndex = textureIndex;
                 isHitValid = true;
             }

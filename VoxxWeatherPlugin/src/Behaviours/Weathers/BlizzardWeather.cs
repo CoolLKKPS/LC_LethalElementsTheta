@@ -8,7 +8,7 @@ using UnityEngine.Rendering.HighDefinition;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class BlizzardWeather: SnowfallWeather
+    internal class BlizzardWeather : SnowfallWeather
     {
         public new static BlizzardWeather? Instance { get; internal set; }
         // Overrides   
@@ -73,8 +73,9 @@ namespace VoxxWeatherPlugin.Weathers
             // If no ground objects are found, the wind force will be set to the maximum
             windForce = LevelManipulator.Instance.groundObjectCandidates.Count > 0 ? SeededRandom.NextDouble(MinWindForce, MaxWindForce) : MaxWindForce;
             timeUntilFrostbite = SeededRandom.NextDouble(MinTimeUntilFrostbite, MaxTimeUntilFrostbite);
-            TimeOfDay.Instance.onTimeSync.AddListener(new UnityAction(OnGlobalTimeSync));     
-            VFXManager?.PopulateLevelWithVFX();
+            TimeOfDay.Instance.onTimeSync.AddListener(new UnityAction(OnGlobalTimeSync));
+            if (VFXManager != null)
+                VFXManager.PopulateLevelWithVFX();
         }
 
         internal override void OnDisable()
@@ -82,7 +83,8 @@ namespace VoxxWeatherPlugin.Weathers
             OnFinish();
             timeAtStart = -1f;
             TimeOfDay.Instance.onTimeSync.RemoveListener(new UnityAction(OnGlobalTimeSync));
-            VFXManager?.Reset();
+            if (VFXManager != null)
+                VFXManager.Reset();
         }
 
         internal void OnGlobalTimeSync()
@@ -93,9 +95,9 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             // Using synced global time to avoid making this a NetworkBehaviour
-            timeSinceWave += TimeOfDay.Instance.globalTime - timeAtStart; 
+            timeSinceWave += TimeOfDay.Instance.globalTime - timeAtStart;
             timeSinceWindChange += TimeOfDay.Instance.globalTime - timeAtStart;
-            
+
             if (chillWaveCoroutine != null || windChangeCoroutine != null)
             {
                 return;
@@ -114,17 +116,17 @@ namespace VoxxWeatherPlugin.Weathers
                 return;
             }
         }
-        
+
         internal void FixedUpdate()
         {
             Vector3 playerHeadPos = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.position;
-            
+
             // Calculate the direction vector from playerHeadPos to blizzard source
             Vector3 directionToSource = (VFXManager.blizzardCollisionCamera.transform.position - playerHeadPos).normalized;
 
             // Calculate the point 20 meters away in the direction of the blizzard source
             Vector3 targetPoint = playerHeadPos + directionToSource * 20f;
-            
+
             isLocalPlayerInWind = !Physics.Linecast(playerHeadPos, targetPoint,
                                         LayerMask.GetMask("Room", "Terrain", "Default", "NavigationSurface"),
                                             QueryTriggerInteraction.Ignore);
@@ -145,7 +147,7 @@ namespace VoxxWeatherPlugin.Weathers
                     UnityEngine.Debug.DrawLine(playerHeadPos, hit.point, Color.green, Time.fixedDeltaTime);
                     // Debug.LogDebug($"Hit object: {hit.collider.gameObject.name}");
                 }
-            }       
+            }
 #endif
         }
 
@@ -174,7 +176,7 @@ namespace VoxxWeatherPlugin.Weathers
                 isPlayerInBlizzard = false;
             }
         }
-            
+
         internal override void SetColdZoneState()
         {
             PlayerEffectsManager.isInColdZone = PlayerEffectsManager.isUnderSnow || isPlayerInBlizzard;
@@ -207,15 +209,15 @@ namespace VoxxWeatherPlugin.Weathers
             {
                 Debug.LogDebug("Player is dead");
             }
-            if (localPlayer.currentAudioTrigger?.insideLighting ?? false)
+            if (localPlayer.currentAudioTrigger != null && localPlayer.currentAudioTrigger.insideLighting)
             {
                 Debug.LogDebug("Player is inside interior lighting");
             }
 #endif
-            return !(localPlayer.physicsParent != null || 
+            return !(localPlayer.physicsParent != null ||
                     localPlayer.isInHangarShipRoom || localPlayer.isInsideFactory ||
                      localPlayer.isInElevator || localPlayer.inAnimationWithEnemy ||
-                      localPlayer.isPlayerDead || (localPlayer.currentAudioTrigger?.insideLighting ?? false));
+                      localPlayer.isPlayerDead || (localPlayer.currentAudioTrigger != null && localPlayer.currentAudioTrigger.insideLighting));
         }
 
         internal IEnumerator ChangeWindDirectionCoroutine()
@@ -225,15 +227,15 @@ namespace VoxxWeatherPlugin.Weathers
 
             // Generate a random angle
             float randomAngle = SeededRandom.NextDouble(-5f, 20f); // So it would tend to change direction clockwise
-            
+
             Debug.LogDebug("Changing wind direction by " + randomAngle + " degrees");
-            
+
             // Get the initial rotation.
             Quaternion startRotation = windContainer.transform.rotation;
 
             // Calculate the target rotation.
             Quaternion targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y + randomAngle, startRotation.eulerAngles.z);
-            
+
             Quaternion interpolatedRotation;
             // Rotate over time.
             float elapsedTime = 0f;
@@ -277,7 +279,7 @@ namespace VoxxWeatherPlugin.Weathers
                 chillWaveContainer.transform.position = initialPosition;
 
                 // Calculate target position (diametrically opposite)
-                Vector3 targetPosition = - initialDirection * levelRadius;
+                Vector3 targetPosition = -initialDirection * levelRadius;
 
                 // Face the chill wave towards the target position
                 chillWaveContainer.transform.LookAt(targetPosition);
@@ -290,7 +292,8 @@ namespace VoxxWeatherPlugin.Weathers
                 float startTime = TimeOfDay.Instance.globalTime;
                 while (elapsedTime < duration)
                 {
-                    chillWaveContainer.SetActive(!GameNetworkManager.Instance?.localPlayerController?.isInsideFactory ?? false); // Only show the chill wave if the player is not inside the factory
+                    chillWaveContainer.SetActive(GameNetworkManager.Instance != null && GameNetworkManager.Instance.localPlayerController != null
+                        && !GameNetworkManager.Instance.localPlayerController.isInsideFactory); // Only show the chill wave if the player is not inside the factory
                     chillWaveContainer.transform.position = Vector3.Lerp(initialPosition, targetPosition, elapsedTime / duration);
                     elapsedTime = TimeOfDay.Instance.globalTime - startTime; // Using synced global time to avoid making this a NetworkBehaviour
                     yield return null;
@@ -301,7 +304,7 @@ namespace VoxxWeatherPlugin.Weathers
 
                 // Hide the chill wave
                 chillWaveContainer.SetActive(false);
-                
+
             }
 
             waveInterval = SeededRandom.NextDouble(MinWaveInterval, MaxWaveInterval);
@@ -312,7 +315,7 @@ namespace VoxxWeatherPlugin.Weathers
         }
     }
 
-    public class BlizzardVFXManager: SnowfallVFXManager
+    public class BlizzardVFXManager : SnowfallVFXManager
     {
         [Header("Blizzard Effects")]
         [SerializeField]
@@ -342,31 +345,36 @@ namespace VoxxWeatherPlugin.Weathers
         internal override void OnDisable()
         {
             base.OnDisable();
-            blizzardWaveContainer?.SetActive(false);
+            if (blizzardWaveContainer != null)
+                blizzardWaveContainer.SetActive(false);
         }
 
         internal override void Update()
         {
             base.Update();
-            blizzardCollisionCamera?.LimitFrameRate(Configuration.collisionCamerasFPS.Value);
+            if (blizzardCollisionCamera != null)
+                blizzardCollisionCamera.LimitFrameRate(Configuration.collisionCamerasFPS.Value);
         }
 
         internal override void Reset()
         {
             base.Reset();
-            blizzardWaveContainer?.SetActive(false);
+            if (blizzardWaveContainer != null)
+                blizzardWaveContainer.SetActive(false);
         }
 
         internal void PlayWavePassSFX()
         {
             HUDManager.Instance.ShakeCamera(ScreenShakeType.VeryStrong);
-            blizzardSFXPlayer?.PlayOneShot(wavePassSFX);
+            if (blizzardSFXPlayer != null)
+                blizzardSFXPlayer.PlayOneShot(wavePassSFX);
         }
 
         internal void PlaySonicBoomSFX()
         {
             HUDManager.Instance.ShakeCamera(ScreenShakeType.Big);
-            blizzardSFXPlayer?.PlayOneShot(sonicBoomSFX);
+            if (blizzardSFXPlayer != null)
+                blizzardSFXPlayer.PlayOneShot(sonicBoomSFX);
         }
 
         internal override void PopulateLevelWithVFX()
@@ -387,14 +395,15 @@ namespace VoxxWeatherPlugin.Weathers
                 Debug.LogDebug("Chill wave trigger setup!");
             }
 
-            blizzardFog ??= snowVFXContainer?.GetComponentInChildren<LocalVolumetricFog>(true);
+            if (blizzardFog == null)
+                blizzardFog = snowVFXContainer != null ? snowVFXContainer.GetComponentInChildren<LocalVolumetricFog>(true) : null;
 
             if (Configuration.useVolumetricBlizzardFog.Value && blizzardFog != null)
             {
                 blizzardFog.gameObject.SetActive(true);
                 blizzardFog.parameters.meanFreePath = SeededRandom.NextDouble(Configuration.blizzardFogMeanFreePathMin.Value, Configuration.blizzardFogMeanFreePathMax.Value);
             }
-            
+
         }
     }
 }

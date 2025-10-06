@@ -10,7 +10,7 @@ using VoxxWeatherPlugin.Compatibility;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class ToxicSmogWeather: BaseWeather
+    internal class ToxicSmogWeather : BaseWeather
     {
         public static ToxicSmogWeather? Instance { get; private set; }
         [SerializeField]
@@ -20,20 +20,22 @@ namespace VoxxWeatherPlugin.Weathers
         {
             Instance = this;
         }
-        
+
         void OnEnable()
         {
             LevelManipulator.Instance.InitializeLevelProperties(1.4f);
-            VFXManager?.PopulateLevelWithVFX();
+            if (VFXManager != null)
+                VFXManager.PopulateLevelWithVFX();
         }
 
         void OnDisable()
         {
             LevelManipulator.Instance.ResetLevelProperties();
-            VFXManager?.Reset();
+            if (VFXManager != null)
+                VFXManager.Reset();
         }
 
-        
+
     }
 
     internal class ToxicSmogVFXManager : BaseVFXManager
@@ -74,12 +76,14 @@ namespace VoxxWeatherPlugin.Weathers
 
         void Awake()
         {
-            hazardPrefab?.SetActive(false);
+            if (hazardPrefab != null)
+                hazardPrefab.SetActive(false);
         }
 
         void OnEnable()
         {
-            toxicVolumetricFog?.gameObject.SetActive(true);
+            if (toxicVolumetricFog != null)
+                toxicVolumetricFog.gameObject.SetActive(true);
             if (fumesContainerOutside != null)
             {
                 fumesContainerOutside.SetActive(true);
@@ -92,7 +96,8 @@ namespace VoxxWeatherPlugin.Weathers
 
         void OnDisable()
         {
-            toxicVolumetricFog?.gameObject.SetActive(false);
+            if (toxicVolumetricFog != null)
+                toxicVolumetricFog.gameObject.SetActive(false);
             if (fumesContainerOutside != null)
             {
                 fumesContainerOutside.SetActive(false);
@@ -119,7 +124,7 @@ namespace VoxxWeatherPlugin.Weathers
             {
                 toxicVolumetricFog.gameObject.SetActive(true);
             }
-            
+
             if (LLLCompat.IsActive)
             {
                 LLLCompat.TagRecolorToxic();
@@ -134,7 +139,7 @@ namespace VoxxWeatherPlugin.Weathers
             // Position in the center of the level
             toxicVolumetricFog.parameters.size = LevelBounds.size;
             toxicVolumetricFog.transform.position = LevelBounds.center;
-            toxicVolumetricFog.parameters.distanceFadeStart = LevelBounds.size.x*0.9f;
+            toxicVolumetricFog.parameters.distanceFadeStart = LevelBounds.size.x * 0.9f;
             toxicVolumetricFog.parameters.distanceFadeEnd = LevelBounds.size.x;
 
             fumesAmount = SeededRandom.Next(MinFumesAmount, MaxFumesAmount);
@@ -143,7 +148,7 @@ namespace VoxxWeatherPlugin.Weathers
             // Cache entrance positions and map objects
             EntranceTeleport[] entrances = FindObjectsOfType<EntranceTeleport>();
             Transform mapPropsContainer = GameObject.FindGameObjectWithTag("MapPropsContainer").transform;
-            
+
             if (fumesContainerOutside == null)
             {
                 fumesContainerOutside = new GameObject("FumesContainerOutside");
@@ -173,7 +178,7 @@ namespace VoxxWeatherPlugin.Weathers
             blockersPositions = entrances.Select(entrance => entrance.transform.position).ToList();
             Debug.LogDebug($"Indoor fumes: Anchor positions: {anchorPositions.Count}, Blockers positions: {blockersPositions.Count}");
             SpawnFumes(anchorPositions, blockersPositions, factoryFumesAmount, fumesContainerInside, SeededRandom);
-            
+
         }
 
         private void SpawnFumes(List<Vector3> anchors, List<Vector3> blockedPositions, int amount, GameObject container, System.Random random)
@@ -268,9 +273,10 @@ namespace VoxxWeatherPlugin.Weathers
             fumesContainerInside = null;
             fumesContainerOutside = null;
 
-            toxicVolumetricFog?.gameObject.SetActive(false);
+            if (toxicVolumetricFog != null)
+                toxicVolumetricFog.gameObject.SetActive(false);
         }
-    
+
         internal void SetToxicFumesColor(Color fogColor, Color fumesColor)
         {
             if (toxicVolumetricFog != null)
@@ -278,15 +284,15 @@ namespace VoxxWeatherPlugin.Weathers
                 toxicVolumetricFog.parameters.albedo = fogColor;
             }
 
-            VisualEffect? fumesVFX = hazardPrefab?.GetComponent<VisualEffect>();
-            
+            VisualEffect? fumesVFX = hazardPrefab != null ? hazardPrefab.GetComponent<VisualEffect>() : null;
+
             if (fumesVFX != null)
             {
                 Debug.LogDebug($"Setting fumes color to {fumesColor}");
                 fumesVFX.SetVector4(ToxicShaderIDs.FumesColor, fumesColor);
             }
 
-            Debug.LogDebug($"Current fumes color: {fumesVFX?.GetVector4(ToxicShaderIDs.FumesColor)}");
+            Debug.LogDebug($"Current fumes color: {(fumesVFX != null ? fumesVFX.GetVector4(ToxicShaderIDs.FumesColor) : null)}");
         }
     }
 }

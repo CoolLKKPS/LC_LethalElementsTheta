@@ -158,7 +158,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 depth = AdditionalData.GetGraphicsBuffer(HDAdditionalCameraData.BufferAccessType.Depth);
             }
-            
+
             if (!useColorTexture && useCameraBuffer)
             {
                 color = AdditionalData.GetGraphicsBuffer(HDAdditionalCameraData.BufferAccessType.Color);
@@ -176,7 +176,7 @@ namespace VoxxWeatherPlugin.Behaviours
             component.SetFloat(m_NearPlane, m_Camera.nearClipPlane);
             component.SetFloat(m_FarPlane, m_Camera.farClipPlane);
             component.SetFloat(m_OrthographicSize, m_Camera.orthographicSize);
-            
+
             if (useDepthTexture)
             {
                 component.SetVector2(m_Dimensions, new Vector2(depthTexture!.width, depthTexture.height));
@@ -195,7 +195,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 component.SetVector2(m_ScaledDimensions, new Vector2(m_Camera.pixelWidth * depth.rtHandleProperties.rtHandleScale.x, m_Camera.pixelHeight * depth.rtHandleProperties.rtHandleScale.y));
                 component.SetFloat(m_AspectRatio, m_Camera.aspect);
             }
-            
+
             if (useDepthTexture)
                 component.SetTexture(m_DepthBuffer, depthTexture);
             else if (depth != null)
@@ -216,7 +216,7 @@ namespace VoxxWeatherPlugin.Behaviours
         /// <returns>String containing the binder information.</returns>
         public override string ToString()
         {
-            return string.Format($"HDRP Camera : '{(AdditionalData == null? "null" : AdditionalData.gameObject.name)}' -> {CameraProperty}");
+            return string.Format($"HDRP Camera : '{(AdditionalData == null ? "null" : AdditionalData.gameObject.name)}' -> {CameraProperty}");
         }
     }
 
@@ -259,7 +259,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 return cameraMatrix;
             }
 
-            Material? fogMaterial = volumetricFog?.parameters.materialMask;
+            Material? fogMaterial = (volumetricFog != null) ? volumetricFog.parameters.materialMask : null;
 
             if (depthCamera == null || depthMap == null || fogMaterial == null)
                 return;

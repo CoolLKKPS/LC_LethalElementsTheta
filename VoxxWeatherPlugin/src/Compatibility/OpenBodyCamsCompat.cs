@@ -53,7 +53,7 @@ namespace VoxxWeatherPlugin.Compatibility
                 return;
 
             Camera? bodyCam = bodyCamComp.GetCamera();
-            GlitchEffect? glitchEffect = SolarFlare?.GlitchCamera(bodyCam);
+            GlitchEffect? glitchEffect = (SolarFlare != null) ? SolarFlare.GlitchCamera(bodyCam) : null;
             RefreshGlitchEffect(bodyCamComp, glitchEffect);
             if (subscribe)
             {
@@ -65,15 +65,15 @@ namespace VoxxWeatherPlugin.Compatibility
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private static void OnCameraStatusChanged(MonoBehaviour bodyCamBehaviour)
         {
-            if (!SolarFlare?.IsActive ?? true)
+            if (SolarFlare == null || !SolarFlare.IsActive)
                 return;
 
             BodyCamComponent? bodyCamComp = bodyCamBehaviour as BodyCamComponent;
-            Camera? bodyCam = bodyCamComp?.GetCamera();
+            Camera? bodyCam = (bodyCamComp != null) ? bodyCamComp.GetCamera() : null;
             if (bodyCam == null)
                 return;
 
-            if (SolarFlare?.glitchPasses.TryGetValue(bodyCam, out GlitchEffect? glitchEffect) ?? false)
+            if (SolarFlare != null && SolarFlare.glitchPasses.TryGetValue(bodyCam, out GlitchEffect? glitchEffect))
             {
                 RefreshGlitchEffect(bodyCamComp, glitchEffect);
             }
@@ -95,8 +95,8 @@ namespace VoxxWeatherPlugin.Compatibility
                 return;
             }
 
-            glitchEffect.enabled = bodyCamComp.IsRemoteCamera && (SolarFlare?.flareData != null);
-            glitchEffect.intensity.value = SolarFlare?.flareData?.ScreenDistortionIntensity ?? 0f;
+            glitchEffect.enabled = bodyCamComp.IsRemoteCamera && SolarFlare != null && SolarFlare.flareData != null;
+            glitchEffect.intensity.value = (SolarFlare != null && SolarFlare.flareData != null) ? SolarFlare.flareData.ScreenDistortionIntensity : 0f;
         }
     }
 }

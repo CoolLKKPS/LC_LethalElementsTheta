@@ -10,7 +10,7 @@ using System.Collections;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class HeatwaveWeather: BaseWeather
+    internal class HeatwaveWeather : BaseWeather
     {
         public static HeatwaveWeather Instance { get; private set; } = null!;
         [SerializeField]
@@ -38,14 +38,16 @@ namespace VoxxWeatherPlugin.Weathers
         private void OnEnable()
         {
             LevelManipulator.Instance.InitializeLevelProperties(1.3f);
-            VFXManager?.PopulateLevelWithVFX();
+            if (VFXManager != null)
+                VFXManager.PopulateLevelWithVFX();
             SetupHeatwaveWeather();
         }
 
         private void OnDisable()
         {
             LevelManipulator.Instance.ResetLevelProperties();
-            VFXManager?.Reset();
+            if (VFXManager != null)
+                VFXManager.Reset();
             PlayerEffectsManager.normalizedTemperature = 0f;
         }
 
@@ -107,7 +109,7 @@ namespace VoxxWeatherPlugin.Weathers
     }
 
 
-    public class HeatwaveVFXManager: BaseVFXManager
+    public class HeatwaveVFXManager : BaseVFXManager
     {
         public GameObject heatwaveParticlePrefab = null!; // Prefab for the heatwave particle effect
         public GameObject? heatwaveVFXContainer; // GameObject for the particles
@@ -134,7 +136,7 @@ namespace VoxxWeatherPlugin.Weathers
                 Debug.LogError("Level bounds, random seed or heatwave particle prefab not set!");
                 return;
             }
-            
+
             CalculateEmitterRadius();
 
             if (heatwaveVFXContainer == null)
@@ -188,7 +190,7 @@ namespace VoxxWeatherPlugin.Weathers
                     yield return null;
                 }
             }
-            
+
             //Adjust the height of the heatwave zone based on the placed emitters
             float newHeight = (maxY - minY) * 1.1f;
             float newYPos = (minY + maxY) / 2;
@@ -213,7 +215,7 @@ namespace VoxxWeatherPlugin.Weathers
                 NavMeshHit navHit;
                 if (NavMesh.SamplePosition(hit.point, out navHit, 3f, -1)) //places only where player can walk
                 {
-                    Bounds doubledBounds = new Bounds(StartOfRound.Instance.shipBounds.bounds.center, 
+                    Bounds doubledBounds = new Bounds(StartOfRound.Instance.shipBounds.bounds.center,
                                   StartOfRound.Instance.shipBounds.bounds.size * 2f);
                     if (!doubledBounds.Contains(navHit.position))
                         return (navHit.position, hit.normal);
@@ -241,7 +243,7 @@ namespace VoxxWeatherPlugin.Weathers
             Debug.LogDebug("Heatwave VFX container destroyed.");
 
             cachedVFX.Clear();
-            
+
             PlayerEffectsManager.isInHeatZone = false;
             PlayerEffectsManager.heatTransferRate = 1f;
         }
@@ -260,24 +262,26 @@ namespace VoxxWeatherPlugin.Weathers
                 heatwaveVFXContainer.SetActive(false);
         }
 
-        
+
         internal IEnumerator CooldownHeatwaveVFX()
         {
             float reductionFactor = 1f;
-            
+
             float maxSunLuminosity = 10f; // Sun luminosity in lux when the heatwave is at its peak
 
             if (heatwaveVFXContainer != null && isPopulated)
             {
-                reductionFactor = Mathf.Clamp01((LevelManipulator.Instance.sunLightData?.intensity ?? 0f) / maxSunLuminosity);
+                reductionFactor = Mathf.Clamp01(((LevelManipulator.Instance != null && LevelManipulator.Instance.sunLightData != null)
+                    ? LevelManipulator.Instance.sunLightData.intensity : 0f) / maxSunLuminosity);
                 reductionFactor = heatwaveIntensityCurve!.Evaluate(reductionFactor); // Min value in curve is 0.001 to avoid division by zero
                 foreach (VisualEffect vfx in cachedVFX)
                 {
-                    vfx?.SetFloat(spawnRatePropertyID, Configuration.HeatwaveParticlesSpawnRate.Value * reductionFactor + 0.25f);
+                    if (vfx != null)
+                        vfx.SetFloat(spawnRatePropertyID, Configuration.HeatwaveParticlesSpawnRate.Value * reductionFactor + 0.25f);
                     yield return null;
                 }
             }
-            
+
             HeatwaveWeather.Instance.timeOfDayFactor = reductionFactor;
             cooldownCoroutine = null;
         }

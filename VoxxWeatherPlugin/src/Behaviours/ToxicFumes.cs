@@ -5,7 +5,7 @@ using VoxxWeatherPlugin.Utils;
 namespace VoxxWeatherPlugin.Behaviours
 {
     internal class ToxicFumes : MonoBehaviour
-    {   
+    {
 
         protected virtual void OnTriggerStay(Collider other)
         {
@@ -13,10 +13,10 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 PlayerControllerB playerController = other.gameObject.GetComponent<PlayerControllerB>();
 
-                if (playerController == GameNetworkManager.Instance.localPlayerController )
+                if (playerController == GameNetworkManager.Instance.localPlayerController)
                 {
                     PlayerEffectsManager.isPoisoned = true;
-                 }
+                }
             }
         }
 

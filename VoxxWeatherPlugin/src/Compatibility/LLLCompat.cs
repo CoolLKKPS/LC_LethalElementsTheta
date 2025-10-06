@@ -60,7 +60,7 @@ namespace VoxxWeatherPlugin.Compatibility
             }
 
             LevelManipulator.Instance.SetSnowColor(snowColor, overlayColor, fogColor, crystalsColor);
-            
+
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
@@ -68,22 +68,25 @@ namespace VoxxWeatherPlugin.Compatibility
         {
             if (ToxicSmogWeather.Instance == null)
                 return;
-            
+
             ExtendedLevel currentLevel = LevelManager.CurrentExtendedLevel;
             if (currentLevel == null)
                 return;
 
             if (!ContentTagManager.TryGetContentTagColour(currentLevel, toxicFogColorTag, out Color fogColor))
             {
-                fogColor = ToxicSmogWeather.Instance.VFXManager?.toxicFogColor ?? Color.green;
+                fogColor = (ToxicSmogWeather.Instance.VFXManager != null)
+                    ? ToxicSmogWeather.Instance.VFXManager.toxicFogColor : Color.green;
             }
 
             if (!ContentTagManager.TryGetContentTagColour(currentLevel, toxicFumesColorTag, out Color fumesColor))
             {
-                fumesColor = ToxicSmogWeather.Instance.VFXManager?.toxicFumesColor ?? Color.green;
+                fumesColor = (ToxicSmogWeather.Instance.VFXManager != null)
+                    ? ToxicSmogWeather.Instance.VFXManager.toxicFumesColor : Color.green;
             }
 
-            ToxicSmogWeather.Instance.VFXManager?.SetToxicFumesColor(fogColor, fumesColor);
+            if (ToxicSmogWeather.Instance.VFXManager != null)
+                ToxicSmogWeather.Instance.VFXManager.SetToxicFumesColor(fogColor, fumesColor);
         }
     }
 }

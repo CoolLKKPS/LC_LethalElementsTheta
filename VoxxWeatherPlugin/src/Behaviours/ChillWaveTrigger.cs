@@ -7,7 +7,7 @@ using UnityEngine.Rendering.HighDefinition;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    public class ChillWaveTrigger: MonoBehaviour
+    public class ChillWaveTrigger : MonoBehaviour
     {
         public AudioSource? audioSourceTemplate;
         private AudioSource[]? audioSources;
@@ -39,8 +39,12 @@ namespace VoxxWeatherPlugin.Behaviours
                         playerController.DamagePlayer(WaveDamage, causeOfDeath: CauseOfDeath.Unknown);
                     }
                     playerController.externalForceAutoFade += transform.forward * waveForce;
-                    BlizzardVFXManager? blizzardVFX = BlizzardWeather.Instance?.VFXManager;
-                    blizzardVFX?.PlayWavePassSFX();
+                    if (BlizzardWeather.Instance != null)
+                    {
+                        BlizzardVFXManager? blizzardVFX = BlizzardWeather.Instance.VFXManager;
+                        if (blizzardVFX != null)
+                            blizzardVFX.PlayWavePassSFX();
+                    }
                     collidedWithLocalPlayer = true;
                 }
             }
@@ -61,7 +65,7 @@ namespace VoxxWeatherPlugin.Behaviours
                     float newTemperature = Mathf.Lerp(initialTemperature, targetTemperature, elapsedTime / duration);
                     // Calculate the delta to reach the new temperature
                     float temperatureDelta = newTemperature - PlayerEffectsManager.normalizedTemperature;
-                    PlayerEffectsManager.SetPlayerTemperature(temperatureDelta); 
+                    PlayerEffectsManager.SetPlayerTemperature(temperatureDelta);
                     yield return null;
                 }
 
@@ -82,7 +86,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 collisionCamera.transform.localPosition = new Vector3(playerPositionLocal.x, collisionCamera.transform.localPosition.y, collisionCamera.transform.localPosition.z);
                 collisionCamera.LimitFrameRate(Configuration.collisionCamerasFPS.Value);
             }
-        } 
+        }
 
         internal void OnDisable()
         {
@@ -101,7 +105,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             audioSourceTemplate ??= gameObject.GetComponentInChildren<AudioSource>(true);
             audioSourceTemplate.gameObject.SetActive(false);
-            
+
             collisionCamera ??= gameObject.GetComponentInChildren<Camera>(true);
 
             BoxCollider waveCollider = gameObject.GetComponent<BoxCollider>();
@@ -126,7 +130,7 @@ namespace VoxxWeatherPlugin.Behaviours
             if (audioSources != null)
             {
                 foreach (var audioSource in audioSources)
-                { 
+                {
                     if (audioSource != null)
                     {
                         Destroy(audioSource.gameObject);
@@ -134,15 +138,15 @@ namespace VoxxWeatherPlugin.Behaviours
                 }
             }
             // Place audio sources along collider x axis so that their range covers the whole box with 10% overlap between them
-            audioSources = new AudioSource[Mathf.CeilToInt(waveCollider.size.x / (0.9f*audioRange))];
+            audioSources = new AudioSource[Mathf.CeilToInt(waveCollider.size.x / (0.9f * audioRange))];
             for (int i = 0; i < audioSources.Length; i++)
             {
                 audioSources[i] = Instantiate(audioSourceTemplate, transform);
-                audioSources[i].transform.localPosition = new Vector3(0.9f*audioRange * i - waveCollider.size.x / 2f, 0, 0);
+                audioSources[i].transform.localPosition = new Vector3(0.9f * audioRange * i - waveCollider.size.x / 2f, 0, 0);
                 audioSources[i].maxDistance = audioRange;
                 audioSources[i].gameObject.SetActive(true);
             }
         }
-        
+
     }
 }
