@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 using VoxxWeatherPlugin.Compatibility;
+using VoxxWeatherPlugin.Patches;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
 using WeatherRegistry;
@@ -60,7 +62,7 @@ namespace VoxxWeatherPlugin.Behaviours
         internal Material? iceMaterial;
         [SerializeField]
         internal float emissionMultiplier;
-        private List<GameObject> snowGroundObjects = [];
+        private readonly List<GameObject> snowGroundObjects = [];
 
         [Header("Base Snow Thickness")]
         [SerializeField]
@@ -202,8 +204,7 @@ namespace VoxxWeatherPlugin.Behaviours
             // Update the level bounds
             if (sizeMultiplier > 0f)
             {
-                CalculateLevelSize(sizeMultiplier);
-                terraMeshConfig.levelBounds = levelBounds;
+                terraMeshConfig.levelBounds = CalculateLevelSize(sizeMultiplier);
             }
         }
 
@@ -342,7 +343,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 groundObjectCandidates.Add(parent.gameObject);
             }
 
-            if (parent.position.y > heightThreshold && mask == (mask | (1 << parent.gameObject.layer)) || IsValidTerrain)
+            if ((parent.position.y > heightThreshold && mask == (mask | (1 << parent.gameObject.layer))) || IsValidTerrain)
             {
                 results.Add(parent.gameObject);
             }
@@ -372,7 +373,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 if (meshRenderer.sharedMaterial != null)
                 {
-                    nameString = meshRenderer.sharedMaterial.name.ToLower();
+                    nameString = meshRenderer.sharedMaterial.name.ToLower(CultureInfo.InvariantCulture);
                     isTerrainInMaterial = nameString.Contains("terrain");
                     isOutOfBoundsInMaterial = nameString.Contains("outofbounds");
                     isDecalLayerMatched = (meshRenderer.renderingLayerMask & decalLayerMask) != 0;
@@ -425,8 +426,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 return false;
             }
 
-            bool isTerrainInName = obj.name.ToLower().Contains("terrain");
-            bool isOutOfBoundsInName = obj.name.ToLower().Contains("outofbounds");
+            bool isTerrainInName = obj.name.Contains("terrain", StringComparison.CurrentCultureIgnoreCase);
+            bool isOutOfBoundsInName = obj.name.Contains("outofbounds", StringComparison.CurrentCultureIgnoreCase);
 
             bool isTerrainInMesh = false;
             bool isOutOfBoundsInMesh = false;
@@ -441,7 +442,7 @@ namespace VoxxWeatherPlugin.Behaviours
                         return false;
                     }
 
-                    nameString = collider.sharedMesh.name.ToLower();
+                    nameString = collider.sharedMesh.name.ToLower(CultureInfo.InvariantCulture);
                     isTerrainInMesh = nameString.Contains("terrain");
                     isOutOfBoundsInMesh = nameString.Contains("outofbounds");
                 }
@@ -451,8 +452,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 return false;
             }
 
-            return (isTerrainInName || isTerrainInMaterial || isTerrainInMesh) &&
-                    !(isOutOfBoundsInName || isOutOfBoundsInMaterial || isOutOfBoundsInMesh) ||
+            return ((isTerrainInName || isTerrainInMaterial || isTerrainInMesh) &&
+                    !(isOutOfBoundsInName || isOutOfBoundsInMaterial || isOutOfBoundsInMesh)) ||
                     isDecalLayerMatched;
         }
 
@@ -514,9 +515,7 @@ namespace VoxxWeatherPlugin.Behaviours
             cube.transform.parent = debugCube.transform;
             // Replace the material with default HDRP Unlit
             cube.GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("HDRP/Unlit"));
-
 #endif
-
             return levelBounds;
 
         }
@@ -600,7 +599,7 @@ namespace VoxxWeatherPlugin.Behaviours
             levelDepthmapCamera!.targetTexture = levelDepthmapUnblurred;
             levelDepthmapCamera.aspect = 1.0f;
             levelDepthmapCamera.enabled = false;
-            depthmapCameraData ??= levelDepthmapCamera.GetComponent<HDAdditionalCameraData>();
+            depthmapCameraData = depthmapCameraData != null ? depthmapCameraData : levelDepthmapCamera.GetComponent<HDAdditionalCameraData>();
             if (depthmapCameraData != null)
                 depthmapCameraData.requestGraphicsBuffer += RequestHDRPBuffersAccess;
             // Create buffer for unblurred depthmap
@@ -643,7 +642,8 @@ namespace VoxxWeatherPlugin.Behaviours
             snowTracksCamera.aspect = 1.0f;
 
             moonProcessingWhitelist = LESettings.meshProcessingWhitelist.Value.CleanMoonName().TrimEnd(';').Split(';');
-            enemySnowBlacklist = [.. LESettings.enemySnowBlacklist.Value.ToLower().TrimEnd(';').Split(';')];
+            enemySnowBlacklist = [.. LESettings.enemySnowBlacklist.Value.ToLower(CultureInfo.InvariantCulture)
+                .TrimEnd(';').Split(';')];
 
             // Assign the snow effects to the PlayerEffectsManager
             foreach (Transform child in snowVolume.transform.parent)
@@ -687,7 +687,7 @@ namespace VoxxWeatherPlugin.Behaviours
             //Deactivate snow module
             snowVolume.transform.parent.gameObject.SetActive(false);
             // Reset snow intensity
-            StartCoroutine(SnowMeltCoroutine());
+            _ = StartCoroutine(SnowMeltCoroutine());
             groundObjectCandidates.Clear();
             waterSurfaceObjects.Clear();
             IsSnowReady = false;
@@ -755,6 +755,7 @@ namespace VoxxWeatherPlugin.Behaviours
             FreezeWater();
 
             IsSnowReady = true;
+            SnowPatches.RemoveEnemiesSnow();
             OnSnowReady?.Invoke(IsSnowReady);
             SnowThicknessManager.Instance!.inputNeedsUpdate = true;
         }

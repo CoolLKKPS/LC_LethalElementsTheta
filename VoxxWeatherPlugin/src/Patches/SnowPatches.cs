@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection.Emit;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using VoxxWeatherPlugin.Behaviours;
@@ -23,10 +24,8 @@ namespace VoxxWeatherPlugin.Patches
         internal static float FrostbiteDamage => LESettings.frostbiteDamage.Value;
         internal static float frostbiteThreshold = 0.5f; // Severity at which frostbite starts to occur, should be below 0.9
         internal static float frostbiteTimer;
-        internal static HashSet<Type> unaffectedEnemyTypes =
-        [
-            typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI), typeof(ButlerBeesEnemyAI), typeof(DocileLocustBeesAI),
-                typeof(RedLocustBees), typeof(DressGirlAI), typeof(SandWormAI)];
+        internal static HashSet<Type> unaffectedEnemyTypes = [typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI), typeof(ButlerBeesEnemyAI),
+            typeof(DocileLocustBeesAI), typeof(RedLocustBees), typeof(DressGirlAI), typeof(SandWormAI)];
         public static HashSet<string>? EnemySpawnBlacklist => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.enemySnowBlacklist : null;
         public static HashSet<SpawnableEnemyWithRarity> enemiesToRestore = [];
 
@@ -413,10 +412,7 @@ namespace VoxxWeatherPlugin.Patches
             SnowTrackersManager.PlayFootprintTracker(__instance, TrackerType.Shovel, !__instance.isInFactory);
         }
 
-        [HarmonyPatch(typeof(StartOfRound), "StartGame")]
-        [HarmonyPostfix]
-        [HarmonyPriority(Priority.Last)]
-        private static void RemoveEnemiesSnowPatch(StartOfRound __instance)
+        internal static void RemoveEnemiesSnow()
         {
             // Some enemies might not have been restored due to going to menu
             if (enemiesToRestore.Count > 0)
@@ -424,7 +420,7 @@ namespace VoxxWeatherPlugin.Patches
                 RestoreEnemies();
             }
 
-            if (!__instance.IsHost || !IsSnowActive())
+            if (!NetworkManager.Singleton.IsHost || !IsSnowActive())
             {
                 return;
             }
@@ -549,7 +545,7 @@ namespace VoxxWeatherPlugin.Patches
     }
 
     [HarmonyPatch]
-    internal class SnowPatchesOptional
+    internal sealed class SnowPatchesOptional
     {
         [HarmonyPatch(typeof(HDRenderPipeline), "RenderTransparency")]
         [HarmonyTranspiler]

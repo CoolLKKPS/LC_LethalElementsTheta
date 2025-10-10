@@ -278,7 +278,7 @@ namespace VoxxWeatherPlugin.Behaviours
     [VFXBinder("Collider/Box")]
     internal sealed class VFXBoxBinder : VFXBinderBase
     {
-        public string Property { get { return (string)m_Property; } set { m_Property = value; UpdateSubProperties(); } }
+        public string Property { get => (string)m_Property; set { m_Property = value; UpdateSubProperties(); } }
 
         [VFXPropertyBinding("UnityEditor.VFX.AABox"), SerializeField]
         private ExposedProperty m_Property = "AABox";
