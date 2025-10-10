@@ -36,7 +36,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.electricMalfunctionData != null
                     && SolarFlareWeather.Instance.electricMalfunctionData.TryGetValue(malfunctionObject, out ElectricMalfunctionData malfunctionData))
                 {
-                    StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
+                    _ = StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
                 }
             }
         }
@@ -48,9 +48,8 @@ namespace VoxxWeatherPlugin.Behaviours
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.electricMalfunctionData != null
                 && SolarFlareWeather.Instance.electricMalfunctionData.TryGetValue(radMechNest, out ElectricMalfunctionData malfunctionData))
             {
-                StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
+                _ = StartCoroutine(SolarFlareWeather.Instance.ElectricMalfunctionCoroutine(malfunctionData));
             }
         }
-
     }
 }

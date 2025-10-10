@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Reflection;
@@ -32,78 +31,77 @@ namespace VoxxWeatherPlugin
 
             try
             {
-                LESettings = new(Config);
+                LESettings = new(cfg: Config);
                 Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+
+                WeatherTypeLoader.LoadLevelManipulator();
+                Harmony.PatchAll(typeof(BasicPatches));
+
+                if (LESettings.EnableSolarFlareWeather.Value)
+                {
+                    WeatherTypeLoader.RegisterFlareWeather();
+                    Harmony.PatchAll(typeof(FlarePatches));
+                    if (!LESettings.DistortOnlyVoiceDuringSolarFlare.Value)
+                    {
+                        Harmony.PatchAll(typeof(FlareOptionalWalkiePatches));
+                        Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} optional solar flare patches successfully applied!");
+                    }
+                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} solar flare patches successfully applied!");
+                }
+
+                if (LESettings.EnableHeatwaveWeather.Value)
+                {
+                    WeatherTypeLoader.RegisterHeatwaveWeather();
+                    Harmony.PatchAll(typeof(HeatwavePatches));
+                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} heatwave patches successfully applied!");
+                }
+
+                if (LESettings.EnableToxicSmogWeather.Value)
+                {
+                    WeatherTypeLoader.RegisterToxicSmogWeather();
+                    Harmony.PatchAll(typeof(ToxicPatches));
+                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} toxic smog patches successfully applied!");
+                }
+
+                if (LESettings.EnableBlizzardWeather.Value || LESettings.EnableSnowfallWeather.Value)
+                {
+                    Harmony.PatchAll(typeof(SnowPatches));
+                    // harmony.PatchAll(typeof(SnowPatchesOptional));
+                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} snow patches successfully applied!");
+
+                    if (LESettings.EnableSnowfallWeather.Value)
+                    {
+                        WeatherTypeLoader.RegisterSnowfallWeather();
+                    }
+
+                    if (LESettings.EnableBlizzardWeather.Value)
+                    {
+                        Harmony.PatchAll(typeof(BlizzardPatches));
+                        Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} blizzard patches successfully applied!");
+                        WeatherTypeLoader.RegisterBlizzardWeather();
+                    }
+
+                    MethodInfo patchMethod = typeof(SnowPatches).GetMethod("EnemySnowHindrancePatch", BindingFlags.NonPublic | BindingFlags.Static);
+                    DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, Harmony, SnowPatches.unaffectedEnemyTypes);
+                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} enemy snow hindrance patches successfully applied!");
+                }
+
+                // Delayed registering of the combined weathers for WeatherTweaks compatibility
+                WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() =>
+                {
+                    if (WeatherTweaksCompat.Enabled)
+                    {
+                        Logger.LogDebug("Weather Tweaks detected!");
+                        WeatherTweaksCompat.RegisterCombinedWeathers();
+                    }
+                });
+
+                Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             }
             catch (Exception e)
             {
-                // StaticLogger.LogError($"Error while initializing '{PLUGIN_NAME}': {e}");
+                StaticLogger.LogError($"Error while initializing '{PluginInfo.PLUGIN_NAME}': {e}");
             }
-
-            WeatherTypeLoader.LoadLevelManipulator();
-            Harmony.PatchAll(typeof(BasicPatches));
-
-            if (LESettings.EnableSolarFlareWeather.Value)
-            {
-                WeatherTypeLoader.RegisterFlareWeather();
-                Harmony.PatchAll(typeof(FlarePatches));
-                if (!LESettings.DistortOnlyVoiceDuringSolarFlare.Value)
-                {
-                    Harmony.PatchAll(typeof(FlareOptionalWalkiePatches));
-                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} optional solar flare patches successfully applied!");
-                }
-                Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} solar flare patches successfully applied!");
-            }
-
-            if (LESettings.EnableHeatwaveWeather.Value)
-            {
-                WeatherTypeLoader.RegisterHeatwaveWeather();
-                Harmony.PatchAll(typeof(HeatwavePatches));
-                Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} heatwave patches successfully applied!");
-            }
-
-            if (LESettings.EnableToxicSmogWeather.Value)
-            {
-                WeatherTypeLoader.RegisterToxicSmogWeather();
-                Harmony.PatchAll(typeof(ToxicPatches));
-                Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} toxic smog patches successfully applied!");
-            }
-
-            if (LESettings.EnableBlizzardWeather.Value || LESettings.EnableSnowfallWeather.Value)
-            {
-                Harmony.PatchAll(typeof(SnowPatches));
-                // harmony.PatchAll(typeof(SnowPatchesOptional));
-                Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} snow patches successfully applied!");
-
-                if (LESettings.EnableSnowfallWeather.Value)
-                {
-                    WeatherTypeLoader.RegisterSnowfallWeather();
-                }
-
-                if (LESettings.EnableBlizzardWeather.Value)
-                {
-                    Harmony.PatchAll(typeof(BlizzardPatches));
-                    Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} blizzard patches successfully applied!");
-                    WeatherTypeLoader.RegisterBlizzardWeather();
-                }
-
-                MethodInfo patchMethod = typeof(SnowPatches).GetMethod("EnemySnowHindrancePatch", BindingFlags.NonPublic | BindingFlags.Static);
-                DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, Harmony, SnowPatches.unaffectedEnemyTypes);
-                Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} enemy snow hindrance patches successfully applied!");
-
-            }
-
-            // Delayed registering of the combined weathers for WeatherTweaks compatibility
-            WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() =>
-            {
-                if (WeatherTweaksCompat.Enabled)
-                {
-                    Logger.LogDebug("Weather Tweaks detected!");
-                    WeatherTweaksCompat.RegisterCombinedWeathers();
-                }
-            });
-
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
 
 #if DEBUG
             // disable overhead of stack trace in dev build
@@ -188,7 +186,6 @@ namespace VoxxWeatherPlugin
                 {
                     Debug.LogDebug($"Error loading types from assembly: {assembly.FullName}");
                 }
-
             }
 
             return derivedTypes;
@@ -196,7 +193,6 @@ namespace VoxxWeatherPlugin
 
         private static void PatchMethodsInTypes(List<Type> typesToPatch, string methodName, MethodInfo patchMethod, PatchType patchType, Harmony harmonyInstance)
         {
-
             if (typesToPatch == null || typesToPatch.Count == 0)
             {
                 Debug.LogWarning("No types to patch provided.");
@@ -220,7 +216,6 @@ namespace VoxxWeatherPlugin
                 Debug.LogError("Harmony instance cannot be null.");
                 return;
             }
-
 
             foreach (Type type in typesToPatch)
             {

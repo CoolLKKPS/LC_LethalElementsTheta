@@ -12,14 +12,14 @@ using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class HeatwaveWeather : BaseWeather
+    internal sealed class HeatwaveWeather : BaseWeather
     {
         public static HeatwaveWeather Instance { get; private set; } = null!;
         [SerializeField]
         internal Volume? exhaustionFilter; // Filter for visual effects
         private BoxCollider? heatwaveTrigger; // Trigger collider for the heatwave zone
-        private float timeUntilStrokeMin => LESettings.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
-        private float timeUntilStrokeMax => LESettings.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
+        private float TimeUntilStrokeMin => LESettings.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
+        private float TimeUntilStrokeMax => LESettings.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
         [SerializeField]
         internal float timeInHeatZoneMax = 50f; // Time before maximum effects are applied
         [SerializeField]
@@ -63,7 +63,7 @@ namespace VoxxWeatherPlugin.Weathers
             Debug.LogDebug($"Heatwave zone size: {LevelBounds.size}. Placed at {LevelBounds.center}");
 
             // Set exhaustion time for the player
-            timeInHeatZoneMax = SeededRandom!.NextDouble(timeUntilStrokeMin, timeUntilStrokeMax);
+            timeInHeatZoneMax = SeededRandom!.NextDouble(TimeUntilStrokeMin, TimeUntilStrokeMax);
             Debug.LogDebug($"Set time until heatstroke: {timeInHeatZoneMax} seconds");
         }
 
@@ -117,8 +117,8 @@ namespace VoxxWeatherPlugin.Weathers
         [SerializeField]
         internal AnimationCurve heatwaveIntensityCurve = null!; // Curve for the intensity of the heatwave
         private Coroutine? cooldownCoroutine; // Coroutine for cooling down the heatwave VFX
-        private List<VisualEffect> cachedVFX = []; // Cached VFX for the heatwave particles
-        bool isPopulated;
+        private readonly List<VisualEffect> cachedVFX = []; // Cached VFX for the heatwave particles
+        private bool isPopulated;
 
         // Variables for emitter placement
         private float emitterSize;

@@ -11,7 +11,7 @@ using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    internal class SnowThicknessManager : MonoBehaviour
+    internal sealed class SnowThicknessManager : MonoBehaviour
     {
         public static SnowThicknessManager? Instance;
         internal int errorCount;
@@ -20,7 +20,7 @@ namespace VoxxWeatherPlugin.Behaviours
         [SerializeField]
         internal ComputeShader? snowThicknessComputeShader;
         internal int MaxEntityCount => LESettings.trackedEntityNumber.Value;
-        internal LevelManipulator? snowfallData => LevelManipulator.Instance;
+        internal LevelManipulator? SnowfallData => LevelManipulator.Instance;
         private int kernelHandle;
         [SerializeField]
         internal bool inputNeedsUpdate = false;
@@ -52,7 +52,7 @@ namespace VoxxWeatherPlugin.Behaviours
         internal float feetPositionY = 0f; // player's feet position
         [SerializeField]
         internal float snowThicknessOffset = 0f;
-        RaycastHit[] hits = new RaycastHit[3]; // For checking the objects below the first hit object (only 3 objects considered)
+        private readonly RaycastHit[] hits = new RaycastHit[3]; // For checking the objects below the first hit object (only 3 objects considered)
 
 #if DEBUG
         [Header("Debug")]
@@ -65,12 +65,12 @@ namespace VoxxWeatherPlugin.Behaviours
         public AudioReverbTrigger? reverbTrigger;
 
 #endif
-        void Awake()
+        private void Awake()
         {
             Instance = this;
         }
 
-        void Start()
+        private void Start()
         {
             kernelHandle = snowThicknessComputeShader!.FindKernel("CSMain");
 
@@ -101,7 +101,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 // Too many errors, stop trying
                 return;
             }
-            if (snowfallData == null)
+            if (SnowfallData == null)
             {
                 Debug.LogError("Snowfall Weather is null, cannot calculate snow thickness!");
                 errorCount++;
@@ -118,7 +118,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             if (inputNeedsUpdate)
             {
-                if (snowfallData.snowMasks == null)
+                if (SnowfallData.snowMasks == null)
                 {
                     Debug.LogError("Snow masks texture is null, cannot calculate snow thickness!");
                     errorCount++;
@@ -126,10 +126,10 @@ namespace VoxxWeatherPlugin.Behaviours
                 }
 
                 // Update static input parameters
-                snowThicknessComputeShader!.SetFloat(SnowfallShaderIDs.MaxSnowHeight, snowfallData.finalSnowHeight);
+                snowThicknessComputeShader!.SetFloat(SnowfallShaderIDs.MaxSnowHeight, SnowfallData.finalSnowHeight);
                 // Set static texture buffers
-                snowThicknessComputeShader.SetTexture(kernelHandle, SnowfallShaderIDs.SnowMasks, snowfallData.snowMasks);
-                snowThicknessComputeShader.SetTexture(kernelHandle, SnowfallShaderIDs.FootprintsTex, snowfallData.snowTracksMap);
+                snowThicknessComputeShader.SetTexture(kernelHandle, SnowfallShaderIDs.SnowMasks, SnowfallData.snowMasks);
+                snowThicknessComputeShader.SetTexture(kernelHandle, SnowfallShaderIDs.FootprintsTex, SnowfallData.snowTracksMap);
                 inputNeedsUpdate = false;
 #if DEBUG
                 reverbTrigger = GameNetworkManager.Instance.localPlayerController.currentAudioTrigger;
@@ -195,9 +195,9 @@ namespace VoxxWeatherPlugin.Behaviours
             // Update dynamic input parameters
             if (snowThicknessComputeShader != null)
             {
-                snowThicknessComputeShader.SetVector(SnowfallShaderIDs.ShipPosition, snowfallData.shipPosition);
-                snowThicknessComputeShader.SetFloat(SnowfallShaderIDs.SnowNoisePower, snowfallData.snowIntensity);
-                snowThicknessComputeShader.SetMatrix(SnowfallShaderIDs.FootprintsViewProjection, snowfallData.tracksWorldToClipMatrix ?? Matrix4x4.identity);
+                snowThicknessComputeShader.SetVector(SnowfallShaderIDs.ShipPosition, SnowfallData.shipPosition);
+                snowThicknessComputeShader.SetFloat(SnowfallShaderIDs.SnowNoisePower, SnowfallData.snowIntensity);
+                snowThicknessComputeShader.SetMatrix(SnowfallShaderIDs.FootprintsViewProjection, SnowfallData.tracksWorldToClipMatrix ?? Matrix4x4.identity);
             }
 
             if (canDispatch)
@@ -389,7 +389,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 return false;
             }
 
-            if (!entitySnowDataMap.ContainsKey(entity))
+            if (!entitySnowDataMap.TryGetValue(entity, out int value))
             {
                 if (freeIndices.Count > 0)
                 {
@@ -405,7 +405,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
             else
             {
-                index = entitySnowDataMap[entity];
+                index = value;
             }
 
             return true;
@@ -416,10 +416,9 @@ namespace VoxxWeatherPlugin.Behaviours
         {
             EntitySnowData data = entitySnowDataInArray![index];
             bool isHitValid = false;
-            if (IsEntityValidForSnow(entity) && groundToIndex.ContainsKey(hit.collider.gameObject))
+            if (IsEntityValidForSnow(entity) && groundToIndex.TryGetValue(hit.collider.gameObject, out int textureIndex))
             {
-                int textureIndex = groundToIndex[hit.collider.gameObject];
-                data!.w = hit.point;
+                data.w = hit.point;
                 data.uv = new Vector2(hit.textureCoord2.x, hit.textureCoord2.y);
                 data.textureIndex = textureIndex;
                 isHitValid = true;
@@ -434,7 +433,7 @@ namespace VoxxWeatherPlugin.Behaviours
             return isHitValid;
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             // Clean up
             entityDataComputeBuffer?.Release();

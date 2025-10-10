@@ -16,7 +16,6 @@ namespace VoxxWeatherPlugin.Weathers
         protected System.Random? SeededRandom => LevelManipulator.Instance.seededRandom;
         protected Bounds LevelBounds => LevelManipulator.Instance != null ? LevelManipulator.Instance.levelBounds : default;
         // protected abstract BaseVFXManager VFXManager { get; }
-
     }
 
     public abstract class BaseVFXManager : MonoBehaviour

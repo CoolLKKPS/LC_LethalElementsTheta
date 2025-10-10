@@ -27,18 +27,18 @@ namespace VoxxWeatherPlugin.Behaviours
         [Tooltip("Shader material.")]
         public Material? m_Material;
 
-        float m_PrevTime;
-        float m_JumpTime;
-        int m_BlockSeed1 = 71;
-        int m_BlockSeed2 = 113;
-        int m_BlockStride = 1;
-        float m_BlockTime;
+        private float m_PrevTime;
+        private float m_JumpTime;
+        private int m_BlockSeed1 = 71;
+        private int m_BlockSeed2 = 113;
+        private int m_BlockStride = 1;
+        private float m_BlockTime;
 
         private Vector2 bufferDimensions;
 
-        RTHandle? tempColorBuffer;
+        private RTHandle? tempColorBuffer;
 
-        static class ShaderIDs
+        private static class ShaderIDs
         {
             internal static readonly int InputTexture = Shader.PropertyToID("_InputTexture");
             internal static readonly int BlockStrength = Shader.PropertyToID("_BlockStrength");
@@ -71,7 +71,6 @@ namespace VoxxWeatherPlugin.Behaviours
             ctx.cmd.CopyTexture(ctx.cameraColorBuffer, 0, 0, 0, 0,
                                 (int)bufferDimensions.x, (int)bufferDimensions.y,
                                         tempColorBuffer, 0, 0, 0, 0);
-
 
             float time = Time.time;
             float delta = time - m_PrevTime;
@@ -134,7 +133,6 @@ namespace VoxxWeatherPlugin.Behaviours
                                 useDynamicScale: true,
                                 name: "Glitch Buffer"
                                 );
-
 
             Debug.Log($"Allocated temp buffer {tempColorBuffer.rt.width}x{tempColorBuffer.rt.height}");
         }

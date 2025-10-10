@@ -27,8 +27,8 @@ namespace VoxxWeatherPlugin.Utils
     public static class SnowTrackersManager
     {
         internal static GameObject? snowTrackersContainer;
-        public static Dictionary<MonoBehaviour, SnowTrackerData> snowTrackersDict = [];
-        public static Dictionary<MonoBehaviour, SnowTrackerData> snowShovelDict = [];
+        internal static Dictionary<MonoBehaviour, SnowTrackerData> snowTrackersDict = [];
+        internal static Dictionary<MonoBehaviour, SnowTrackerData> snowShovelDict = [];
         private static readonly int isTrackingID = Shader.PropertyToID("isTracking");
 
         /// <summary>

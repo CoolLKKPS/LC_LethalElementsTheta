@@ -11,19 +11,15 @@ namespace VoxxWeatherPlugin.Utils
         public static T? LoadAsset<T>(string bundleName, string assetName) where T : Object
         {
             AssetBundle? bundle = LoadBundle(bundleName);
-            if (bundle == null)
-            {
-                return null;
-            }
 
-            return bundle.LoadAsset<T>(assetName);
+            return bundle == null ? null : bundle.LoadAsset<T>(assetName);
         }
 
         private static AssetBundle? LoadBundle(string bundleName)
         {
-            if (loadedBundles.ContainsKey(bundleName))
+            if (loadedBundles.TryGetValue(bundleName, out AssetBundle? value))
             {
-                return loadedBundles[bundleName];
+                return value;
             }
 
             string dllPath = Assembly.GetExecutingAssembly().Location;
@@ -49,6 +45,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 bundle.Unload(true); // Unload assets as well
             }
+
             loadedBundles.Clear();
         }
     }

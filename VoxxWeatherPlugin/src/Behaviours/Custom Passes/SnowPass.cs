@@ -62,7 +62,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         public RenderQueueType renderQueueType = RenderQueueType.AllOpaque;
         public LayerMask layerMask = 1; // Layer mask Default enabled
-        public RenderingLayers renderingLayers = RenderingLayers.Layer1;
+        public RenderingLayers snowRenderingLayers = RenderingLayers.Layer1;
         public SortingCriteria sortingCriteria = SortingCriteria.CommonOpaque;
 
         // Override material
@@ -88,10 +88,10 @@ namespace VoxxWeatherPlugin.Behaviours
         internal StencilOp stencilFailOperation;
         internal StencilOp stencilDepthFailOperation;
 
-        internal ShaderPass shaderPass = ShaderPass.Forward;
+        internal ShaderPass snowShaderPass = ShaderPass.Forward;
 
-        static ShaderTagId[]? forwardShaderTags;
-        static ShaderTagId[]? depthShaderTags;
+        private static ShaderTagId[]? forwardShaderTags;
+        private static ShaderTagId[]? depthShaderTags;
 
         protected override void Setup(ScriptableRenderContext renderContext, CommandBuffer cmd)
         {
@@ -114,9 +114,9 @@ namespace VoxxWeatherPlugin.Behaviours
             ];
         }
 
-        ShaderTagId[]? GetShaderTagIds()
+        private ShaderTagId[]? GetShaderTagIds()
         {
-            return (shaderPass == ShaderPass.DepthPrepass) ? depthShaderTags : forwardShaderTags;
+            return (snowShaderPass == ShaderPass.DepthPrepass) ? depthShaderTags : forwardShaderTags;
         }
 
         protected override void Execute(CustomPassContext ctx)
@@ -178,7 +178,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 overrideMaterialPassIndex = (snowOverlayMaterial != null) ? snowOverlayMaterial.FindPass(overrideMaterialPassName) : 0,
                 stateBlock = stateBlock,
                 layerMask = layerMask,
-                renderingLayerMask = (uint)renderingLayers
+                renderingLayerMask = (uint)snowRenderingLayers
             };
 
             ScriptableRenderContext renderCtx = ctx.renderContext;

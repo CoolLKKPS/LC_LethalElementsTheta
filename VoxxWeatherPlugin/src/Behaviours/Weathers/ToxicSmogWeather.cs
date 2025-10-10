@@ -12,35 +12,34 @@ using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class ToxicSmogWeather : BaseWeather
+    internal sealed class ToxicSmogWeather : BaseWeather
     {
         public static ToxicSmogWeather? Instance { get; private set; }
+
         [SerializeField]
         internal ToxicSmogVFXManager? VFXManager;
 
-        void Awake()
+        private void Awake()
         {
             Instance = this;
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             LevelManipulator.Instance.InitializeLevelProperties(1.4f);
             if (VFXManager != null)
                 VFXManager.PopulateLevelWithVFX();
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             LevelManipulator.Instance.ResetLevelProperties();
             if (VFXManager != null)
                 VFXManager.Reset();
         }
-
-
     }
 
-    internal class ToxicSmogVFXManager : BaseVFXManager
+    internal sealed class ToxicSmogVFXManager : BaseVFXManager
     {
         [Header("Smog")]
         [SerializeField]
@@ -57,16 +56,16 @@ namespace VoxxWeatherPlugin.Weathers
         private int fumesAmount = 24;
         private int MinFumesAmount => LESettings.MinFumesAmount.Value;
         private int MaxFumesAmount => LESettings.MaxFumesAmount.Value;
-        private float factoryAmountMultiplier => LESettings.FactoryAmountMultiplier.Value;
+        private float FactoryAmountMultiplier => LESettings.FactoryAmountMultiplier.Value;
         [SerializeField]
         private int factoryFumesAmount = 12;
         [SerializeField]
         private GameObject? fumesContainerInside;
         [SerializeField]
         private GameObject? fumesContainerOutside;
-        private float spawnRadius = 20f;
-        private float minDistanceBetweenHazards = 5f;
-        private float minDistanceFromBlockers = 20f;
+        private readonly float spawnRadius = 20f;
+        private readonly float minDistanceBetweenHazards = 5f;
+        private readonly float minDistanceFromBlockers = 20f;
         private List<Vector3>? spawnedPositions;
         private int maxAttempts;
         [SerializeField]
@@ -76,13 +75,13 @@ namespace VoxxWeatherPlugin.Weathers
         [ColorUsage(true, true)]
         internal Color toxicFogColor = new(0.413f, 0.589f, 0.210f); //dark lime green
 
-        void Awake()
+        private void Awake()
         {
             if (hazardPrefab != null)
                 hazardPrefab.SetActive(false);
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             if (toxicVolumetricFog != null)
                 toxicVolumetricFog.gameObject.SetActive(true);
@@ -96,7 +95,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             if (toxicVolumetricFog != null)
                 toxicVolumetricFog.gameObject.SetActive(false);
@@ -145,7 +144,7 @@ namespace VoxxWeatherPlugin.Weathers
             toxicVolumetricFog.parameters.distanceFadeEnd = LevelBounds.size.x;
 
             fumesAmount = SeededRandom.Next(MinFumesAmount, MaxFumesAmount);
-            factoryFumesAmount = Mathf.CeilToInt(fumesAmount * factoryAmountMultiplier * dungeonSize);
+            factoryFumesAmount = Mathf.CeilToInt(fumesAmount * FactoryAmountMultiplier * dungeonSize);
 
             // Cache entrance positions and map objects
             EntranceTeleport[] entrances = FindObjectsOfType<EntranceTeleport>();
@@ -180,7 +179,6 @@ namespace VoxxWeatherPlugin.Weathers
             blockersPositions = [.. entrances.Select(entrance => entrance.transform.position)];
             Debug.LogDebug($"Indoor fumes: Anchor positions: {anchorPositions.Count}, Blockers positions: {blockersPositions.Count}");
             SpawnFumes(anchorPositions, blockersPositions, factoryFumesAmount, fumesContainerInside, SeededRandom);
-
         }
 
         private void SpawnFumes(List<Vector3> anchors, List<Vector3> blockedPositions, int amount, GameObject container, System.Random random)

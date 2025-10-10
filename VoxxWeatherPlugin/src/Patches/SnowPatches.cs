@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -24,12 +25,10 @@ namespace VoxxWeatherPlugin.Patches
         internal static float frostbiteTimer;
         internal static HashSet<Type> unaffectedEnemyTypes =
         [
-            typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI),
-                                                                                typeof(ButlerBeesEnemyAI), typeof(DocileLocustBeesAI), typeof(RedLocustBees),
-                                                                                typeof(DressGirlAI), typeof(SandWormAI)];
+            typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI), typeof(ButlerBeesEnemyAI), typeof(DocileLocustBeesAI),
+                typeof(RedLocustBees), typeof(DressGirlAI), typeof(SandWormAI)];
         public static HashSet<string>? EnemySpawnBlacklist => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.enemySnowBlacklist : null;
         public static HashSet<SpawnableEnemyWithRarity> enemiesToRestore = [];
-
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyTranspiler]
@@ -432,12 +431,12 @@ namespace VoxxWeatherPlugin.Patches
 
             foreach (SpawnableEnemyWithRarity enemy in RoundManager.Instance.currentLevel.DaytimeEnemies)
             {
-                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower()))
+                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower(CultureInfo.InvariantCulture)))
                 {
                     if (!enemy.enemyType.spawningDisabled)
                     {
                         Debug.LogDebug($"Removing {enemy.enemyType.enemyName} due to cold conditions.");
-                        enemiesToRestore.Add(enemy);
+                        _ = enemiesToRestore.Add(enemy);
                         enemy.enemyType.spawningDisabled = true;
                     }
                 }
@@ -445,12 +444,12 @@ namespace VoxxWeatherPlugin.Patches
 
             foreach (SpawnableEnemyWithRarity enemy in RoundManager.Instance.currentLevel.OutsideEnemies)
             {
-                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower()))
+                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower(CultureInfo.InvariantCulture)))
                 {
                     if (!enemy.enemyType.spawningDisabled)
                     {
                         Debug.LogDebug($"Removing {enemy.enemyType.enemyName} due to cold conditions.");
-                        enemiesToRestore.Add(enemy);
+                        _ = enemiesToRestore.Add(enemy);
                         enemy.enemyType.spawningDisabled = true;
                     }
                 }
@@ -482,7 +481,7 @@ namespace VoxxWeatherPlugin.Patches
         private static bool SurfaceSamplingOverride(PlayerControllerB playerScript)
         {
             bool isOnGround = Physics.Raycast(playerScript.interactRay, out playerScript.hit, 6f, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore);
-            bool isSameSurface = isOnGround ? playerScript.hit.collider.CompareTag(StartOfRound.Instance.footstepSurfaces[playerScript.currentFootstepSurfaceIndex].surfaceTag) : true;
+            bool isSameSurface = !isOnGround || playerScript.hit.collider.CompareTag(StartOfRound.Instance.footstepSurfaces[playerScript.currentFootstepSurfaceIndex].surfaceTag);
             bool snowOverride = false;
 
             if (!IsSnowActive() || !(LevelManipulator.Instance != null && LevelManipulator.Instance.IsSnowReady))
@@ -627,7 +626,4 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
     }
-
 }
-
-

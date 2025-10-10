@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VoxxWeatherPlugin.Utils
 {
-    static class SnowfallShaderIDs
+    internal static class SnowfallShaderIDs
     {
         internal static readonly int FadeValue = Shader.PropertyToID("_FadeValue");
         internal static readonly int DepthTex = Shader.PropertyToID("_DepthTex");
@@ -36,7 +36,7 @@ namespace VoxxWeatherPlugin.Utils
         internal static readonly int IsDepthFade = Shader.PropertyToID("_EnableDepthFade");
     }
 
-    static class ToxicShaderIDs
+    internal static class ToxicShaderIDs
     {
         internal static readonly int FumesColor = Shader.PropertyToID("_FumesColor");
     }

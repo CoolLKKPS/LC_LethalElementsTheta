@@ -6,6 +6,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using Unity.AI.Navigation;
 using System.IO;
+using System.Globalization;
 
 namespace VoxxWeatherPlugin.Utils
 {
@@ -195,8 +196,7 @@ namespace VoxxWeatherPlugin.Utils
             if (!disableShadows)
             {
                 // Disable shadows for the original object
-                MeshRenderer? renderer = original.GetComponent<MeshRenderer>();
-                if (renderer != null)
+                if (original.TryGetComponent(out MeshRenderer renderer))
                 {
                     renderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
@@ -253,7 +253,7 @@ namespace VoxxWeatherPlugin.Utils
 
         public static string CleanMoonName(this string moonName)
         {
-            return moonName.Replace(" ", "").Replace("_", "").Replace("-", "").ToLower();
+            return moonName.Replace(" ", "").Replace("_", "").Replace("-", "").ToLower(CultureInfo.InvariantCulture);
         }
 
         public static void WhiteOut(this RenderTexture rt)

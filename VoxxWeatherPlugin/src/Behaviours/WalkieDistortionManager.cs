@@ -8,7 +8,7 @@ namespace VoxxWeatherPlugin.Behaviours
     public class WalkieDistortionManager : MonoBehaviour
     {
         internal Dictionary<AudioSource, GameObject> walkieSubTargets = [];
-        private static Dictionary<AudioSource, InterferenceDistortionFilter> cachedFilters = [];
+        private static readonly Dictionary<AudioSource, InterferenceDistortionFilter> cachedFilters = [];
 
         internal AudioSource SplitWalkieTarget(GameObject target)
         {
@@ -37,7 +37,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 if (walkieSubTargets.TryGetValue(audioSource, out GameObject subTarget))
                 {
-                    walkieSubTargets.Remove(audioSource);
+                    _ = walkieSubTargets.Remove(audioSource);
                     Destroy(subTarget);
                 }
                 else
@@ -118,7 +118,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 {
                     Destroy(filter);
                 }
-                cachedFilters.Remove(voiceSource);
+                _ = cachedFilters.Remove(voiceSource);
             }
             else
             {

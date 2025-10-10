@@ -404,7 +404,6 @@ namespace VoxxWeatherPlugin.Weathers
                 blizzardFog.gameObject.SetActive(true);
                 blizzardFog.parameters.meanFreePath = SeededRandom.NextDouble(LESettings.blizzardFogMeanFreePathMin.Value, LESettings.blizzardFogMeanFreePathMax.Value);
             }
-
         }
     }
 }

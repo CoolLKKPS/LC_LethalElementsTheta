@@ -9,7 +9,6 @@ namespace VoxxWeatherPlugin.Patches
     [HarmonyPatch]
     internal sealed class BlizzardPatches
     {
-
         [HarmonyPatch(typeof(MouthDogAI), "DetectNoise")]
         [HarmonyPrefix]
         private static void DogSoundMufflingPatch(MouthDogAI __instance, ref float noiseLoudness)
@@ -30,9 +29,5 @@ namespace VoxxWeatherPlugin.Patches
             return BlizzardWeather.Instance == null || !BlizzardWeather.Instance.IsActive || !__instance.isClimbingLadder ||
                 !BlizzardWeather.Instance.isLocalPlayerInWind || PlayerEffectsManager.ColdSeverity >= 0.8f;
         }
-
     }
-
 }
-
-

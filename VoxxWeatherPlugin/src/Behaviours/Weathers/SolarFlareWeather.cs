@@ -632,9 +632,7 @@ namespace VoxxWeatherPlugin.Weathers
 
     }
 
-
-
-    internal class SolarFlareVFXManager : BaseVFXManager
+    internal sealed class SolarFlareVFXManager : BaseVFXManager
     {
         [SerializeField]
         internal GameObject? flareObject; // Prefab for the flare
@@ -644,13 +642,13 @@ namespace VoxxWeatherPlugin.Weathers
         private GameObject? sunTextureObject; // GameObject for the sun texture
 
         // Threshold for sun luminosity in lux to enable aurora
-        internal float auroraSunThreshold => LESettings.AuroraVisibilityThreshold.Value;
+        internal float AuroraSunThreshold => LESettings.AuroraVisibilityThreshold.Value;
 
         // Variables for emitter placement
 
         internal override void PopulateLevelWithVFX()
         {
-            (Color, Color) PrepareCoronaColor(Color baseCoronaColor)
+            static (Color, Color) PrepareCoronaColor(Color baseCoronaColor)
             {
                 Color.RGBToHSV(baseCoronaColor, out float h, out float s, out float v);
                 s = Mathf.Clamp01(s + 0.65f); // Increase saturation, clamp to 0-1 range
@@ -959,7 +957,7 @@ namespace VoxxWeatherPlugin.Weathers
             // TODO add check for sun's position relative to horizon???
             if (auroraObject != null)
             {
-                auroraObject.SetActive(sunLuminosity <= auroraSunThreshold);
+                auroraObject.SetActive(sunLuminosity <= AuroraSunThreshold);
             }
         }
     }

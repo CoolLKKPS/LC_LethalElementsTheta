@@ -73,12 +73,12 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        internal static bool CheckConditionsForHeatingPause(PlayerControllerB playerController)
+        private static bool CheckConditionsForHeatingPause(PlayerControllerB playerController)
         {
             return playerController.inSpecialInteractAnimation || playerController.inAnimationWithEnemy || playerController.isClimbingLadder || playerController.physicsParent != null;
         }
 
-        internal static bool CheckConditionsForHeatingStop(PlayerControllerB playerController)
+        private static bool CheckConditionsForHeatingStop(PlayerControllerB playerController)
         {
             return playerController.beamUpParticle.isPlaying || playerController.isInElevator ||
                     playerController.isInHangarShipRoom || playerController.isUnderwater ||

@@ -4,10 +4,9 @@ using VoxxWeatherPlugin.Utils;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    internal class ToxicFumes : MonoBehaviour
+    internal sealed class ToxicFumes : MonoBehaviour
     {
-
-        protected virtual void OnTriggerStay(Collider other)
+        private void OnTriggerStay(Collider other)
         {
             if (other.CompareTag("Player"))
             {

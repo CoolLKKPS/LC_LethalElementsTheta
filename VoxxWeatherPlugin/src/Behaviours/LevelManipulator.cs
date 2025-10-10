@@ -125,7 +125,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         [SerializeField]
         internal TerraMeshConfig terraMeshConfig;
-        string[] moonProcessingWhitelist = [];
+        private string[] moonProcessingWhitelist = [];
         [SerializeField]
         internal float heightThreshold = -100f; // Under this y coordinate, objects will not be considered for snow rendering
         [SerializeField]
@@ -160,7 +160,7 @@ namespace VoxxWeatherPlugin.Behaviours
 #endif
         public Bounds levelBounds; // Current level bounds
 
-        void Awake()
+        private void Awake()
         {
             if (Instance != null)
             {
@@ -567,7 +567,7 @@ namespace VoxxWeatherPlugin.Behaviours
                             replaceUvs: false,
                             onlyUVs: false, //Will only update UV1 field on the mesh
                                             // Renderer mask
-                            renderingLayerMask: (uint)(snowOverlayCustomPass?.renderingLayers ?? 0),
+                            renderingLayerMask: (uint)(snowOverlayCustomPass?.snowRenderingLayers ?? 0),
                             // Terrain conversion
                             minMeshStep: LESettings.minMeshStep.Value,
                             maxMeshStep: LESettings.maxMeshStep.Value,
@@ -1354,7 +1354,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
             BakeDepth(false);
             RefreshBakeMaterial();
-            StartCoroutine(snowMasks.BakeMasks(groundObjectCandidates, bakeMaterial!, BakeMipmaps, BakeResolution));
+            _ = StartCoroutine(snowMasks.BakeMasks(groundObjectCandidates, bakeMaterial!, BakeMipmaps, BakeResolution));
         }
 
         #endregion

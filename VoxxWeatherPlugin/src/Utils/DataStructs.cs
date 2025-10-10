@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace VoxxWeatherPlugin.Utils
 {
-
     [Serializable]
     public struct EntitySnowData
     {
@@ -123,7 +122,5 @@ namespace VoxxWeatherPlugin.Utils
         public float footprintStrength;
         public int particleNumber;
     }
-
 #endif
-
 }

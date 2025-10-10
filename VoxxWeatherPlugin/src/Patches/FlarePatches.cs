@@ -5,7 +5,6 @@ using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.AI;
 using VoxxWeatherPlugin.Behaviours;
-using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
 
 using static VoxxWeatherPlugin.VoxxWeatherPlugin;
@@ -18,13 +17,13 @@ namespace VoxxWeatherPlugin.Patches
         internal static System.Random random = new();
         internal static System.Random seededRandom = new(42);
         internal static Transform? originalTeleporterPosition;
-        internal static float batteryDrainMultiplier => Mathf.Clamp(LESettings.BatteryDrainMultiplier.Value, 0, 99);
-        internal static bool drainBatteryInFacility => LESettings.DrainBatteryInFacility.Value;
-        internal static bool doorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
+        internal static float BatteryDrainMultiplier => Mathf.Clamp(LESettings.BatteryDrainMultiplier.Value, 0, 99);
+        internal static bool DrainBatteryInFacility => LESettings.DrainBatteryInFacility.Value;
+        internal static bool DoorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
 
         [HarmonyPatch(typeof(PlayerVoiceIngameSettings), "OnDisable")]
         [HarmonyPrefix]
-        static void FilterCacheCleanerPatch(PlayerVoiceIngameSettings __instance)
+        private static void FilterCacheCleanerPatch(PlayerVoiceIngameSettings __instance)
         {
             if (__instance.voiceAudio != null)
             {
@@ -34,7 +33,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(StartOfRound), "UpdatePlayerVoiceEffects")]
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> VoiceDistorterPatch(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> VoiceDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new(instructions);
             codeMatcher.MatchForward(false,
@@ -60,16 +59,16 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(GrabbableObject), "Update")]
         [HarmonyPrefix]
-        static void GrabbableDischargePatch(GrabbableObject __instance)
+        private static void GrabbableDischargePatch(GrabbableObject __instance)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
                 SolarFlareWeather.Instance.flareData != null)
             {
-                if (__instance.IsOwner && __instance.hasBeenHeld && __instance.itemProperties.requiresBattery && (!__instance.isInFactory || drainBatteryInFacility))
+                if (__instance.IsOwner && __instance.hasBeenHeld && __instance.itemProperties.requiresBattery && (!__instance.isInFactory || DrainBatteryInFacility))
                 {
                     if (__instance.insertedBattery.charge > 0.0 && !__instance.itemProperties.itemIsTrigger)
                     {
-                        __instance.insertedBattery.charge -= 2 * SolarFlareWeather.Instance.flareData.ScreenDistortionIntensity * batteryDrainMultiplier * Time.deltaTime / __instance.itemProperties.batteryUsage;
+                        __instance.insertedBattery.charge -= 2 * SolarFlareWeather.Instance.flareData.ScreenDistortionIntensity * BatteryDrainMultiplier * Time.deltaTime / __instance.itemProperties.batteryUsage;
                     }
                 }
             }
@@ -77,7 +76,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(HUDManager), "UseSignalTranslatorClientRpc")]
         [HarmonyPrefix]
-        static void SignalTranslatorDistortionPatch(ref string signalMessage)
+        private static void SignalTranslatorDistortionPatch(ref string signalMessage)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
                 SolarFlareWeather.Instance.flareData != null)
@@ -99,7 +98,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(ShipTeleporter), "beamUpPlayer", MethodType.Enumerator)]
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> TeleporterDistortionTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> TeleporterDistortionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(false,
@@ -137,7 +136,7 @@ namespace VoxxWeatherPlugin.Patches
             return matcher.InstructionEnumeration();
         }
 
-        static void TeleporterPositionDistorter(ShipTeleporter teleporter)
+        private static void TeleporterPositionDistorter(ShipTeleporter teleporter)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
                 SolarFlareWeather.Instance.flareData != null)
@@ -159,7 +158,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        static void TeleporterPositionRestorer(ShipTeleporter teleporter)
+        private static void TeleporterPositionRestorer(ShipTeleporter teleporter)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
                 SolarFlareWeather.Instance.flareData != null)
@@ -171,11 +170,10 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(TerminalAccessibleObject), "CallFunctionFromTerminal")]
         [HarmonyPrefix]
-        static bool DoorTerminalBlocker(TerminalAccessibleObject __instance)
+        private static bool DoorTerminalBlocker(TerminalAccessibleObject __instance)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
-                SolarFlareWeather.Instance.flareData != null &&
-                doorMalfunctionEnabled)
+                SolarFlareWeather.Instance.flareData != null && DoorMalfunctionEnabled)
             {
                 if (SolarFlareWeather.Instance.flareData.IsDoorMalfunction && __instance.isBigDoor && seededRandom.NextDouble() < 0.5f)
                 {
@@ -187,7 +185,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(RadarBoosterItem), "EnableRadarBooster")]
         [HarmonyPrefix]
-        static void SignalBoosterPrefix(RadarBoosterItem __instance, ref bool enable)
+        private static void SignalBoosterPrefix(RadarBoosterItem __instance, ref bool enable)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive &&
                 SolarFlareWeather.Instance.flareData != null)
@@ -224,7 +222,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(Turret), nameof(Turret.Start))]
         [HarmonyPostfix]
-        static void TurretMalfunctionPatch(Turret __instance)
+        private static void TurretMalfunctionPatch(Turret __instance)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsMatched)
             {
@@ -234,7 +232,7 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(RadMechAI), nameof(RadMechAI.Start))]
         [HarmonyPostfix]
-        static void RadMechMalfunctionPatch(RadMechAI __instance)
+        private static void RadMechMalfunctionPatch(RadMechAI __instance)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsMatched)
             {
@@ -245,18 +243,18 @@ namespace VoxxWeatherPlugin.Patches
     }
 
     [HarmonyPatch]
-    internal class FlareOptionalWalkiePatches
+    internal sealed class FlareOptionalWalkiePatches
     {
         [HarmonyPatch(typeof(WalkieTalkie), "Start")]
         [HarmonyPrefix]
         private static void WalkieDistortionPatch(WalkieTalkie __instance)
         {
-            __instance.gameObject.AddComponent<WalkieDistortionManager>();
+            _ = __instance.gameObject.AddComponent<WalkieDistortionManager>();
         }
 
         [HarmonyPatch(typeof(WalkieTalkie), "TimeAllAudioSources")]
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> RadioDistorterPatch(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> RadioDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new(instructions);
 
@@ -293,19 +291,16 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
 
-        internal static AudioSource SplitWalkieTarget(GameObject target)
+        private static AudioSource SplitWalkieTarget(GameObject target)
         {
             WalkieDistortionManager subTargetsManager = target.transform.parent.gameObject.GetComponent<WalkieDistortionManager>();
             return subTargetsManager.SplitWalkieTarget(target);
         }
 
-        internal static void DisposeWalkieTarget(AudioSource audioSource, GameObject walkieObject)
+        private static void DisposeWalkieTarget(AudioSource audioSource, GameObject walkieObject)
         {
             WalkieDistortionManager subTargetsManager = walkieObject.GetComponent<WalkieDistortionManager>();
             subTargetsManager.DisposeWalkieTarget(audioSource);
         }
     }
-
 }
-
-

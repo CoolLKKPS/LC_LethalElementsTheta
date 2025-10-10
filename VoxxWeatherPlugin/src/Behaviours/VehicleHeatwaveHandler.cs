@@ -15,7 +15,7 @@ namespace VoxxWeatherPlugin.Behaviours
         public int engineDieDamage = 1;
 
         public bool isInHeatwave;
-        private Coroutine turbSoundCoroutine; // Changed to Coroutine
+        private Coroutine? turbSoundCoroutine; // Changed to Coroutine
         private float engineDieTimer;
         private System.Random seededRandom;
 

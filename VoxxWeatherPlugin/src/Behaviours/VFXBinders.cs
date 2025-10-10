@@ -25,21 +25,21 @@ namespace VoxxWeatherPlugin.Behaviours
         [VFXPropertyBinding("UnityEditor.VFX.CameraType"), SerializeField]
         protected ExposedProperty CameraProperty = "Camera";
 
-        RTHandle? m_Texture;
+        private readonly RTHandle? m_Texture;
         protected RenderTexture? depthBufferRT;
 
-        ExposedProperty? m_Position;
-        ExposedProperty? m_Angles;
-        ExposedProperty? m_Scale;
-        ExposedProperty? m_FieldOfView;
-        ExposedProperty? m_NearPlane;
-        ExposedProperty? m_FarPlane;
-        ExposedProperty? m_AspectRatio;
-        ExposedProperty? m_Dimensions;
-        ExposedProperty? m_ScaledDimensions;
-        ExposedProperty? m_DepthBuffer;
-        ExposedProperty? m_ColorBuffer;
-        ExposedProperty? m_OrthographicSize;
+        private ExposedProperty? m_Position;
+        private ExposedProperty? m_Angles;
+        private ExposedProperty? m_Scale;
+        private ExposedProperty? m_FieldOfView;
+        private ExposedProperty? m_NearPlane;
+        private ExposedProperty? m_FarPlane;
+        private ExposedProperty? m_AspectRatio;
+        private ExposedProperty? m_Dimensions;
+        private ExposedProperty? m_ScaledDimensions;
+        private ExposedProperty? m_DepthBuffer;
+        private ExposedProperty? m_ColorBuffer;
+        private ExposedProperty? m_OrthographicSize;
 
         /// <summary>
         /// Set a camera property.
@@ -181,13 +181,13 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 component.SetVector2(m_Dimensions, new Vector2(depthTexture!.width, depthTexture.height));
                 component.SetVector2(m_ScaledDimensions, new Vector2(depthTexture.width, depthTexture.height));
-                component.SetFloat(m_AspectRatio, (float)depthTexture.width / (float)depthTexture.height);
+                component.SetFloat(m_AspectRatio, depthTexture.width / (float)depthTexture.height);
             }
             else if (useColorTexture)
             {
                 component.SetVector2(m_Dimensions, new Vector2(colorTexture!.width, colorTexture.height));
                 component.SetVector2(m_ScaledDimensions, new Vector2(colorTexture.width, colorTexture.height));
-                component.SetFloat(m_AspectRatio, (float)colorTexture.width / (float)colorTexture.height);
+                component.SetFloat(m_AspectRatio, colorTexture.width / (float)colorTexture.height);
             }
             else if (depth != null)
             {
@@ -216,7 +216,7 @@ namespace VoxxWeatherPlugin.Behaviours
         /// <returns>String containing the binder information.</returns>
         public override string ToString()
         {
-            return string.Format($"HDRP Camera : '{(AdditionalData == null ? "null" : AdditionalData.gameObject.name)}' -> {CameraProperty}");
+            return $"HDRP Camera : '{(AdditionalData == null ? "null" : AdditionalData.gameObject.name)}' -> {CameraProperty}";
         }
     }
 
@@ -276,12 +276,12 @@ namespace VoxxWeatherPlugin.Behaviours
 
     [AddComponentMenu("VFX/Property Binders/Box Collider Binder")]
     [VFXBinder("Collider/Box")]
-    class VFXBoxBinder : VFXBinderBase
+    internal sealed class VFXBoxBinder : VFXBinderBase
     {
         public string Property { get { return (string)m_Property; } set { m_Property = value; UpdateSubProperties(); } }
 
         [VFXPropertyBinding("UnityEditor.VFX.AABox"), SerializeField]
-        protected ExposedProperty m_Property = "AABox";
+        private ExposedProperty m_Property = "AABox";
         public BoxCollider Target;
 
         private ExposedProperty? Center;
@@ -293,12 +293,12 @@ namespace VoxxWeatherPlugin.Behaviours
             UpdateSubProperties();
         }
 
-        void OnValidate()
+        private void OnValidate()
         {
             UpdateSubProperties();
         }
 
-        void UpdateSubProperties()
+        private void UpdateSubProperties()
         {
             Center = m_Property + "_center";
             Size = m_Property + "_size";
@@ -315,10 +315,9 @@ namespace VoxxWeatherPlugin.Behaviours
             component.SetVector3(Size, Target.size);
         }
 
-
         public override string ToString()
         {
-            return string.Format("Box : '{0}' -> {1}", m_Property, Target == null ? "(null)" : Target.name);
+            return $"Box : '{m_Property}' -> {(Target == null ? "(null)" : Target.name)}";
         }
     }
 }
