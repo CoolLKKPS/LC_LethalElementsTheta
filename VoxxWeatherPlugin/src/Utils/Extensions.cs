@@ -282,7 +282,7 @@ namespace VoxxWeatherPlugin.Utils
             }
         }
 
-        public static IEnumerator NavMeshRebuildCoroutine(this NavMeshSurface navMeshSurface, AsyncOperation asyncOperation, System.Diagnostics.Stopwatch sw)
+        public static IEnumerator NavMeshRebuildCoroutine(this NavMeshSurface _, AsyncOperation asyncOperation, System.Diagnostics.Stopwatch sw)
         {
             sw.Restart();
 

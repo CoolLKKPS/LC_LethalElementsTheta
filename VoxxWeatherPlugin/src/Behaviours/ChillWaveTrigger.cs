@@ -15,7 +15,7 @@ namespace VoxxWeatherPlugin.Behaviours
         private AudioSource[]? audioSources;
         public Camera? collisionCamera;
         private LocalVolumetricFog? blizzardWaveFog;
-        internal int WaveDamage => LESettings.chillingWaveDamage.Value;
+        internal static int WaveDamage => LESettings.chillingWaveDamage.Value;
         [SerializeField]
         internal float waveForce = 40f;
         internal Coroutine? temperatureChangeCoroutine;
@@ -49,7 +49,7 @@ namespace VoxxWeatherPlugin.Behaviours
         }
 
         // Decrease the player's temperature to simulate the cold wave effect (0.5 seconds duration)
-        internal IEnumerator TemperatureChangeCoroutine()
+        internal static IEnumerator TemperatureChangeCoroutine()
         {
             float targetTemperature = -0.8f;
             float initialTemperature = PlayerEffectsManager.normalizedTemperature;

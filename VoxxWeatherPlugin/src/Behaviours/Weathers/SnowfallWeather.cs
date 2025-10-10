@@ -46,7 +46,7 @@ namespace VoxxWeatherPlugin.Weathers
                 VFXManager.PopulateLevelWithVFX();
         }
 
-        internal void OnFinish()
+        internal virtual void OnFinish()
         {
             if (LevelManipulator.Instance != null)
             {
@@ -241,7 +241,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         }
 
-        private HashSet<DateTime> GetChristmasDates(DateTime currentDate)
+        private static HashSet<DateTime> GetChristmasDates(DateTime currentDate)
         {
             // Get dates that are -2 days away from 25th December, 31st December or 6th January
             HashSet<DateTime> christmasDates =

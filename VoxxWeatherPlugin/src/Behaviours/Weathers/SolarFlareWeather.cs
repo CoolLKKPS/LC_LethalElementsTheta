@@ -40,7 +40,7 @@ namespace VoxxWeatherPlugin.Weathers
         public bool IsRadMechMalfunction;
     }
 
-    internal class ElectricMalfunctionData
+    internal sealed class ElectricMalfunctionData
     {
         internal MonoBehaviour? malfunctionObject;
         internal ParticleSystem StaticParticles = null!;
@@ -50,7 +50,7 @@ namespace VoxxWeatherPlugin.Weathers
         internal float MalfunctionDuration;
     }
 
-    internal class SolarFlareWeather : BaseWeather
+    internal sealed class SolarFlareWeather : BaseWeather
     {
         public static SolarFlareWeather? Instance { get; private set; }
         [SerializeField]
@@ -71,19 +71,19 @@ namespace VoxxWeatherPlugin.Weathers
         internal Dictionary<MonoBehaviour, ElectricMalfunctionData> electricMalfunctionData = [];
         internal TerminalAccessibleObject[]? bigDoors;
 
-        internal float TurretMalfunctionDelay => LESettings.TurretMalfunctionDelay.Value; // 4
-        internal float RadMechReactivateDelay => LESettings.RadMechReactivateDelay.Value; // 7 
-        internal float RadMechStunDuration => LESettings.RadMechStunDuration.Value; //4
-        internal float TurretMalfunctionChance => LESettings.TurretMalfunctionChance.Value;
-        internal float RadMechReactivationChance => LESettings.RadMechReactivationChance.Value;
-        internal float RadMechMalfunctionChance => LESettings.RadMechMalfunctionChance.Value;
-        internal float DoorMalfunctionChance => LESettings.DoorMalfunctionChance.Value;
-        internal float LandmineMalfunctionChance => LESettings.LandmineMalfunctionChance.Value;
+        internal static float TurretMalfunctionDelay => LESettings.TurretMalfunctionDelay.Value; // 4
+        internal static float RadMechReactivateDelay => LESettings.RadMechReactivateDelay.Value; // 7 
+        internal static float RadMechStunDuration => LESettings.RadMechStunDuration.Value; //4
+        internal static float TurretMalfunctionChance => LESettings.TurretMalfunctionChance.Value;
+        internal static float RadMechReactivationChance => LESettings.RadMechReactivationChance.Value;
+        internal static float RadMechMalfunctionChance => LESettings.RadMechMalfunctionChance.Value;
+        internal static float DoorMalfunctionChance => LESettings.DoorMalfunctionChance.Value;
+        internal static float LandmineMalfunctionChance => LESettings.LandmineMalfunctionChance.Value;
 
-        internal bool IsDoorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
-        internal bool IsRadMechMalfunctionEnabled => LESettings.RadMechMalfunctionEnabled.Value;
-        internal bool IsTurretMalfunctionEnabled => LESettings.TurretMalfunctionEnabled.Value;
-        internal bool IsLandmineMalfunctionEnabled => LESettings.LandmineMalfunctionEnabled.Value;
+        internal static bool IsDoorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
+        internal static bool IsRadMechMalfunctionEnabled => LESettings.RadMechMalfunctionEnabled.Value;
+        internal static bool IsTurretMalfunctionEnabled => LESettings.TurretMalfunctionEnabled.Value;
+        internal static bool IsLandmineMalfunctionEnabled => LESettings.LandmineMalfunctionEnabled.Value;
         private Mesh? turretMeshReadable;
 
         private void Awake()
@@ -153,7 +153,7 @@ namespace VoxxWeatherPlugin.Weathers
             _ = StartCoroutine(DisplayTipDelayed("Solar Flare Warning", $"{randomIntensity} solar energy burst detected!", 7f));
         }
 
-        private IEnumerator DisplayTipDelayed(string title, string message, float delay)
+        private static IEnumerator DisplayTipDelayed(string title, string message, float delay)
         {
             yield return new WaitForSeconds(delay);
             HUDManager.Instance.DisplayTip(title, message);
@@ -429,7 +429,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             if (radarCameraObject.TryGetComponent(out Camera radarCamera))
             {
-                GlitchCamera(radarCamera);
+                _ = GlitchCamera(radarCamera);
                 //radarCameraObject.AddComponent<CameraDebugSettings>();
             }
             else
@@ -449,9 +449,9 @@ namespace VoxxWeatherPlugin.Weathers
             if (camera == null)
                 return null;
 
-            if (glitchPasses.ContainsKey(camera))
+            if (glitchPasses.TryGetValue(camera, out GlitchEffect? value))
             {
-                return glitchPasses[camera];
+                return value;
             }
 
             HDAdditionalCameraData radarCameraData = camera.GetComponent<HDAdditionalCameraData>();
@@ -593,7 +593,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
         }
 
-        private IEnumerator FadeAudio(ElectricMalfunctionData malfunctionData, float duration, float delay, bool fadeIn)
+        private static IEnumerator FadeAudio(ElectricMalfunctionData malfunctionData, float duration, float delay, bool fadeIn)
         {
             AudioSource? audioSource = malfunctionData.ElectricAudio;
             float targetVolume = fadeIn ? 1f : 0f;
@@ -642,7 +642,7 @@ namespace VoxxWeatherPlugin.Weathers
         private GameObject? sunTextureObject; // GameObject for the sun texture
 
         // Threshold for sun luminosity in lux to enable aurora
-        internal float AuroraSunThreshold => LESettings.AuroraVisibilityThreshold.Value;
+        internal static float AuroraSunThreshold => LESettings.AuroraVisibilityThreshold.Value;
 
         // Variables for emitter placement
 
@@ -771,12 +771,12 @@ namespace VoxxWeatherPlugin.Weathers
                     if (!volume.enabled || !volume.gameObject.activeInHierarchy)
                         continue;
 
-                    if (volume.gameObject.scene.name == LevelManipulator.Instance.CurrentSceneName &&
+                    if (volume.gameObject.scene.name == LevelManipulator.CurrentSceneName &&
                         volume.profile.TryGet(out PhysicallyBasedSky physicallyBasedSky))
                     {
                         isPhysicallyBasedSky = true;
                     }
-                    if (volume.gameObject.scene.name == LevelManipulator.Instance.CurrentSceneName &&
+                    if (volume.gameObject.scene.name == LevelManipulator.CurrentSceneName &&
                         volume.profile.TryGet(out Bloom bloomEffect))
                     {
                         invBloomStrength = 1 - bloomEffect.intensity.value;

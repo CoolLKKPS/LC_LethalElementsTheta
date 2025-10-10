@@ -19,8 +19,8 @@ namespace VoxxWeatherPlugin.Behaviours
         [Header("Compute Shader")]
         [SerializeField]
         internal ComputeShader? snowThicknessComputeShader;
-        internal int MaxEntityCount => LESettings.trackedEntityNumber.Value;
-        internal LevelManipulator? SnowfallData => LevelManipulator.Instance;
+        internal static int MaxEntityCount => LESettings.trackedEntityNumber.Value;
+        internal static LevelManipulator? SnowfallData => LevelManipulator.Instance;
         private int kernelHandle;
         [SerializeField]
         internal bool inputNeedsUpdate = false;
@@ -367,7 +367,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
         }
 
-        private bool IsEntityValidForSnow(MonoBehaviour entity)
+        private static bool IsEntityValidForSnow(MonoBehaviour entity)
         {
             if (entity is PlayerControllerB player)
             {

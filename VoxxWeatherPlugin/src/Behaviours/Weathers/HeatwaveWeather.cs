@@ -18,8 +18,8 @@ namespace VoxxWeatherPlugin.Weathers
         [SerializeField]
         internal Volume? exhaustionFilter; // Filter for visual effects
         private BoxCollider? heatwaveTrigger; // Trigger collider for the heatwave zone
-        private float TimeUntilStrokeMin => LESettings.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
-        private float TimeUntilStrokeMax => LESettings.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
+        private static float TimeUntilStrokeMin => LESettings.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
+        private static float TimeUntilStrokeMax => LESettings.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
         [SerializeField]
         internal float timeInHeatZoneMax = 50f; // Time before maximum effects are applied
         [SerializeField]
@@ -181,7 +181,7 @@ namespace VoxxWeatherPlugin.Weathers
                         VisualEffect vfx = emitter.GetComponent<VisualEffect>();
                         cachedVFX.Add(vfx);
                         emitter.SetActive(true);
-                        emitter.transform.parent = heatwaveVFXContainer.transform; // Parent the emitter to the VFX container
+                        emitter.transform.parent = (heatwaveVFXContainer != null) ? heatwaveVFXContainer.transform : null; // Parent the emitter to the VFX container
                         placedEmittersNum++;
 
                         minY = Mathf.Min(minY, position.y);
@@ -208,7 +208,7 @@ namespace VoxxWeatherPlugin.Weathers
             Debug.LogDebug($"Placed {placedEmittersNum} emitters.");
         }
 
-        private (Vector3, Vector3) CastRayAndSampleNavMesh(Vector3 rayOrigin)
+        private static (Vector3, Vector3) CastRayAndSampleNavMesh(Vector3 rayOrigin)
         {
             int layerMask = (1 << LayerMask.NameToLayer("Room")) | (1 << LayerMask.NameToLayer("Default"));
 

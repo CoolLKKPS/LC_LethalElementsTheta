@@ -13,15 +13,16 @@ namespace VoxxWeatherPlugin.Weathers
                                 IsMatched);
         public bool IsMatched => WeatherDefinition == (LevelManipulator.Instance != null ? LevelManipulator.Instance.currentWeather : null);
 
-        protected System.Random? SeededRandom => LevelManipulator.Instance.seededRandom;
-        protected Bounds LevelBounds => LevelManipulator.Instance != null ? LevelManipulator.Instance.levelBounds : default;
+        protected static System.Random SeededRandom => LevelManipulator.Instance.seededRandom ?? new();
+        protected static Bounds LevelBounds => LevelManipulator.Instance != null ? LevelManipulator.Instance.levelBounds : default;
         // protected abstract BaseVFXManager VFXManager { get; }
     }
 
     public abstract class BaseVFXManager : MonoBehaviour
     {
-        protected System.Random? SeededRandom => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.seededRandom : null;
-        protected Bounds LevelBounds => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.levelBounds : default;
+        protected static System.Random SeededRandom => (LevelManipulator.Instance != null && LevelManipulator.Instance.seededRandom != null)
+            ? LevelManipulator.Instance.seededRandom : new();
+        protected static Bounds LevelBounds => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.levelBounds : default;
 
         internal abstract void Reset();
         internal abstract void PopulateLevelWithVFX();

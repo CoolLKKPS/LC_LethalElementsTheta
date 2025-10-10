@@ -10,7 +10,7 @@ using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
-    internal class BlizzardWeather : SnowfallWeather
+    internal sealed class BlizzardWeather : SnowfallWeather
     {
         public static new BlizzardWeather? Instance { get; internal set; }
         // Overrides   
@@ -28,10 +28,10 @@ namespace VoxxWeatherPlugin.Weathers
         internal float windChangeInterval = 30f;
         [SerializeField]
         internal float windForce = 0.25f;
-        internal float MinWindForce => LESettings.minWindForce.Value;
-        internal float MaxWindForce => LESettings.maxWindForce.Value;
-        internal float MinTimeUntilFrostbite => LESettings.minTimeUntilFrostbite.Value;
-        internal float MaxTimeUntilFrostbite => LESettings.maxTimeUntilFrostbite.Value;
+        internal static float MinWindForce => LESettings.minWindForce.Value;
+        internal static float MaxWindForce => LESettings.maxWindForce.Value;
+        internal static float MinTimeUntilFrostbite => LESettings.minTimeUntilFrostbite.Value;
+        internal static float MaxTimeUntilFrostbite => LESettings.maxTimeUntilFrostbite.Value;
         internal Coroutine? windChangeCoroutine;
         [SerializeField]
         internal bool isLocalPlayerInWind = false;
@@ -41,14 +41,14 @@ namespace VoxxWeatherPlugin.Weathers
         [Header("Chill Waves")]
         [SerializeField]
         internal int numOfWaves;
-        internal int MinWaveCount => LESettings.minWaveCount.Value;
-        internal int MaxWaveCount => LESettings.maxWaveCount.Value;
+        internal static int MinWaveCount => LESettings.minWaveCount.Value;
+        internal static int MaxWaveCount => LESettings.maxWaveCount.Value;
         [SerializeField]
         internal float timeSinceWave;
         [SerializeField]
         internal float waveSpeed;
-        internal float MinWaveInterval => LESettings.minWaveInterval.Value;
-        internal float MaxWaveInterval => LESettings.maxWaveInterval.Value;
+        internal static float MinWaveInterval => LESettings.minWaveInterval.Value;
+        internal static float MaxWaveInterval => LESettings.maxWaveInterval.Value;
         [SerializeField]
         internal float waveInterval = 90f;
         internal Coroutine? chillWaveCoroutine;
@@ -124,7 +124,8 @@ namespace VoxxWeatherPlugin.Weathers
             Vector3 playerHeadPos = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.position;
 
             // Calculate the direction vector from playerHeadPos to blizzard source
-            Vector3 directionToSource = (VFXManager.blizzardCollisionCamera.transform.position - playerHeadPos).normalized;
+            Vector3 directionToSource = ((VFXManager.blizzardCollisionCamera != null
+                ? VFXManager.blizzardCollisionCamera.transform.position : Vector3.zero) - playerHeadPos).normalized;
 
             // Calculate the point 20 meters away in the direction of the blizzard source
             Vector3 targetPoint = playerHeadPos + (directionToSource * 20f);
@@ -183,7 +184,7 @@ namespace VoxxWeatherPlugin.Weathers
             PlayerEffectsManager.isInColdZone = PlayerEffectsManager.isUnderSnow || isPlayerInBlizzard;
         }
 
-        internal bool IsWindAllowed(PlayerControllerB localPlayer)
+        internal static bool IsWindAllowed(PlayerControllerB localPlayer)
         {
 #if DEBUG
             if (localPlayer.physicsParent != null)
@@ -223,8 +224,8 @@ namespace VoxxWeatherPlugin.Weathers
 
         internal IEnumerator ChangeWindDirectionCoroutine()
         {
-            GameObject windContainer = VFXManager.snowVFXContainer;
-            GameObject chillWaveContainer = VFXManager.blizzardWaveContainer;
+            GameObject? windContainer = VFXManager.snowVFXContainer;
+            GameObject? chillWaveContainer = VFXManager.blizzardWaveContainer;
 
             // Generate a random angle
             float randomAngle = SeededRandom.NextDouble(-5f, 20f); // So it would tend to change direction clockwise
@@ -232,7 +233,7 @@ namespace VoxxWeatherPlugin.Weathers
             Debug.LogDebug("Changing wind direction by " + randomAngle + " degrees");
 
             // Get the initial rotation.
-            Quaternion startRotation = windContainer.transform.rotation;
+            Quaternion startRotation = (windContainer != null) ? windContainer.transform.rotation : Quaternion.identity;
 
             // Calculate the target rotation.
             Quaternion targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y + randomAngle, startRotation.eulerAngles.z);
@@ -244,15 +245,27 @@ namespace VoxxWeatherPlugin.Weathers
             while (elapsedTime < windChangeInterval)
             {
                 interpolatedRotation = Quaternion.Slerp(startRotation, targetRotation, elapsedTime / windChangeInterval);
-                windContainer.transform.rotation = interpolatedRotation;
-                chillWaveContainer.transform.rotation = interpolatedRotation;
+                if (windContainer != null)
+                {
+                    windContainer.transform.rotation = interpolatedRotation;
+                }
+                if (chillWaveContainer != null)
+                {
+                    chillWaveContainer.transform.rotation = interpolatedRotation;
+                }
                 elapsedTime += TimeOfDay.Instance.globalTime - startTime; // Using synced global time to avoid making this a NetworkBehaviour
                 yield return null;
             }
 
             // Ensure the final rotation is exact.
-            windContainer.transform.rotation = targetRotation;
-            chillWaveContainer.transform.rotation = targetRotation;
+            if (windContainer != null)
+            {
+                windContainer.transform.rotation = targetRotation;
+            }
+            if (chillWaveContainer != null)
+            {
+                chillWaveContainer.transform.rotation = targetRotation;
+            }
 
             windDirection = Quaternion.Euler(0f, randomAngle, 0f) * windDirection;
             windDirection.Normalize();
@@ -335,7 +348,10 @@ namespace VoxxWeatherPlugin.Weathers
             base.Start();
             blizzardSFXPlayer = GetComponent<AudioSource>();
             blizzardSFXPlayer.spatialBlend = 0; // 2D sound
-            blizzardCollisionCamera = snowVFXContainer.GetComponentInChildren<Camera>();
+            if (snowVFXContainer != null)
+            {
+                blizzardCollisionCamera = snowVFXContainer.GetComponentInChildren<Camera>();
+            }
         }
 
         internal override void OnEnable()

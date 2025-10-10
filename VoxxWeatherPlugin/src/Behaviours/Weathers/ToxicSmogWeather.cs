@@ -44,8 +44,8 @@ namespace VoxxWeatherPlugin.Weathers
         [Header("Smog")]
         [SerializeField]
         private float smogFreePath = 24f;
-        private float MinFreePath => LESettings.MinFreePath.Value;
-        private float MaxFreePath => LESettings.MaxFreePath.Value;
+        private static float MinFreePath => LESettings.MinFreePath.Value;
+        private static float MaxFreePath => LESettings.MaxFreePath.Value;
         [SerializeField]
         private LocalVolumetricFog? toxicVolumetricFog;
 
@@ -54,9 +54,9 @@ namespace VoxxWeatherPlugin.Weathers
         internal GameObject? hazardPrefab; // Assign in the inspector
         [SerializeField]
         private int fumesAmount = 24;
-        private int MinFumesAmount => LESettings.MinFumesAmount.Value;
-        private int MaxFumesAmount => LESettings.MaxFumesAmount.Value;
-        private float FactoryAmountMultiplier => LESettings.FactoryAmountMultiplier.Value;
+        private static int MinFumesAmount => LESettings.MinFumesAmount.Value;
+        private static int MaxFumesAmount => LESettings.MaxFumesAmount.Value;
+        private static float FactoryAmountMultiplier => LESettings.FactoryAmountMultiplier.Value;
         [SerializeField]
         private int factoryFumesAmount = 12;
         [SerializeField]

@@ -189,16 +189,16 @@ namespace VoxxWeatherPlugin.Behaviours
             RenderForwardRendererList(ctx.hdCamera.frameSettings, rendererList, opaque, ctx.renderContext, ctx.cmd);
         }
 
-        internal void SetupMaterial(Material? material)
+        internal static void SetupMaterial(Material? material)
         {
             if (material == null)
             {
                 return;
             }
-            material.SetFloat(SnowfallShaderIDs.PCFKernelSize, LevelManipulator.Instance!.PCFKernelSize);
-            material.SetFloat(SnowfallShaderIDs.BaseTessellationFactor, LevelManipulator.Instance!.BaseTessellationFactor);
-            material.SetFloat(SnowfallShaderIDs.MaxTessellationFactor, LevelManipulator.Instance!.MaxTessellationFactor);
-            material.SetInt(SnowfallShaderIDs.isAdaptiveTessellation, LevelManipulator.Instance!.IsAdaptiveTessellation);
+            material.SetFloat(SnowfallShaderIDs.PCFKernelSize, LevelManipulator.PCFKernelSize);
+            material.SetFloat(SnowfallShaderIDs.BaseTessellationFactor, LevelManipulator.BaseTessellationFactor);
+            material.SetFloat(SnowfallShaderIDs.MaxTessellationFactor, LevelManipulator.MaxTessellationFactor);
+            material.SetInt(SnowfallShaderIDs.isAdaptiveTessellation, LevelManipulator.IsAdaptiveTessellation);
             // material.SetFloat(SnowfallShaderIDs.ShadowBias, SnowfallWeather.Instance!.shadowBias);
             // material.SetFloat(SnowfallShaderIDs.SnowOcclusionBias, SnowfallWeather.Instance!.snowOcclusionBias);
         }
@@ -263,7 +263,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 DrawTransparentRendererList(renderContext, cmd, frameSettings, rendererList);
         }
 
-        internal void DrawOpaqueRendererList(in ScriptableRenderContext renderContext, CommandBuffer cmd, in FrameSettings frameSettings, RendererList rendererList)
+        internal static void DrawOpaqueRendererList(in ScriptableRenderContext renderContext, CommandBuffer cmd, in FrameSettings frameSettings, RendererList rendererList)
         {
             if (!frameSettings.IsEnabled(FrameSettingsField.OpaqueObjects))
                 return;
@@ -271,7 +271,7 @@ namespace VoxxWeatherPlugin.Behaviours
             CoreUtils.DrawRendererList(renderContext, cmd, rendererList);
         }
 
-        internal void DrawTransparentRendererList(in ScriptableRenderContext renderContext, CommandBuffer cmd, in FrameSettings frameSettings, RendererList rendererList)
+        internal static void DrawTransparentRendererList(in ScriptableRenderContext renderContext, CommandBuffer cmd, in FrameSettings frameSettings, RendererList rendererList)
         {
             if (!frameSettings.IsEnabled(FrameSettingsField.TransparentObjects))
                 return;

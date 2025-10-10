@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>voxx.LethalElementsPlugin</AssemblyName>
         <Description>A plugin adding new weather types to Lethal Company</Description>
-        <Version>1.4.0</Version>
+        <Version>1.3.0</Version>
     </PropertyGroup>
 
     <!-- Project properties. -->
@@ -25,10 +25,9 @@
 
     <!-- Disable certain warnings. -->
     <PropertyGroup>
-        <!-- <NoWarn>$(NoWarn);CA1000</NoWarn>
         <NoWarn>$(NoWarn);CA1051</NoWarn>
-        <NoWarn>$(NoWarn);CA1707</NoWarn>
-        <NoWarn>$(NoWarn);CA1859</NoWarn> -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <NoWarn>$(NoWarn);IDE0011</NoWarn>
         <NoWarn>$(NoWarn);IDE0130</NoWarn>
     </PropertyGroup>
 

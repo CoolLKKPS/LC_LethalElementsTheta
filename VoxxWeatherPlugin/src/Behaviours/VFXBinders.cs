@@ -74,7 +74,7 @@ namespace VoxxWeatherPlugin.Behaviours
             m_OrthographicSize = CameraProperty + "_orthographicSize";
         }
 
-        protected void RequestHDRPBuffersAccess(ref HDAdditionalCameraData.BufferAccess access)
+        protected static void RequestHDRPBuffersAccess(ref HDAdditionalCameraData.BufferAccess access)
         {
             access.RequestAccess(HDAdditionalCameraData.BufferAccessType.Color);
             access.RequestAccess(HDAdditionalCameraData.BufferAccessType.Depth);
