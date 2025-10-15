@@ -35,26 +35,22 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> VoiceDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
-            codeMatcher.MatchForward(false,
-                new CodeMatch(OpCodes.Stloc_S),
-                new CodeMatch(OpCodes.Ldloc_1),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "isPlayerDead")),
-                new CodeMatch(OpCodes.Brfalse)
-            );
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
+                new(OpCodes.Stloc_S),
+                new(OpCodes.Ldloc_1),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "isPlayerDead")),
+                new(OpCodes.Brfalse))
+            .Advance(1);
 
-            if (codeMatcher.IsValid)
-            {
-                codeMatcher.Advance(1).Insert(
-                    new CodeInstruction(OpCodes.Ldloc_0),  // Load voiceChatAudioSource
-                    new CodeInstruction(OpCodes.Ldloc_1),  // Load allPlayerScript
-                    new CodeInstruction(OpCodes.Ldloc_S, 4),  // Load walkie talkie flag 
-                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(WalkieDistortionManager),
-                                                                        nameof(WalkieDistortionManager.UpdateVoiceChatDistortion)))
-                );
-            }
-
-            return codeMatcher.InstructionEnumeration();
+            return codeMatcher.IsValid
+                ? codeMatcher.Insert(
+                        new(OpCodes.Ldloc_0), // Load voiceChatAudioSource
+                        new(OpCodes.Ldloc_1), // Load allPlayerScript
+                        new(OpCodes.Ldloc_S, 4), // Load walkie talkie flag
+                        new(OpCodes.Call, AccessTools.Method(typeof(WalkieDistortionManager),
+                            nameof(WalkieDistortionManager.UpdateVoiceChatDistortion))))
+                    .InstructionEnumeration()
+                : instructions;
         }
 
         [HarmonyPatch(typeof(GrabbableObject), "Update")]
@@ -100,40 +96,28 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> TeleporterDistortionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher matcher = new CodeMatcher(instructions)
-                .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldarg_0),
-                    new CodeMatch(OpCodes.Ldfld),
-                    new CodeMatch(OpCodes.Ldloc_1),
-                    new CodeMatch(OpCodes.Ldfld,
-                        AccessTools.Field(typeof(ShipTeleporter), "teleporterPosition")),
-                    new CodeMatch(OpCodes.Callvirt,
-                        AccessTools.Method(typeof(Transform), "get_position")),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Ldc_R4, 160f),
-                    new CodeMatch(OpCodes.Ldc_I4_0),
-                    new CodeMatch(OpCodes.Ldc_I4_1),
-                    new CodeMatch(OpCodes.Callvirt,
-                        AccessTools.Method(typeof(PlayerControllerB), "TeleportPlayer"))
-                );
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld),
+                new(OpCodes.Ldloc_1),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(ShipTeleporter), nameof(ShipTeleporter.teleporterPosition))),
+                new(OpCodes.Callvirt, AccessTools.Method(typeof(Transform), "get_position")),
+                new(OpCodes.Ldc_I4_1),
+                new(OpCodes.Ldc_R4, 160.0f),
+                new(OpCodes.Ldc_I4_0),
+                new(OpCodes.Ldc_I4_1),
+                new(OpCodes.Callvirt, AccessTools.Method(typeof(PlayerControllerB), nameof(PlayerControllerB.TeleportPlayer))));
 
-            matcher.Insert(
-                new CodeInstruction(OpCodes.Ldloc_1), // Load `shipTeleporter` onto the stack
-                new CodeInstruction(OpCodes.Call,
-                    AccessTools.Method(typeof(FlarePatches), nameof(TeleporterPositionDistorter)))
-            );
-
-            // Move to the end of the matched block
-            matcher.Advance(12);
-
-            matcher.Insert(
-                new CodeInstruction(OpCodes.Ldloc_1),
-                new CodeInstruction(OpCodes.Call,
-                    AccessTools.Method(typeof(FlarePatches), nameof(TeleporterPositionRestorer)))
-            );
-
-            // Return the modified instructions
-            return matcher.InstructionEnumeration();
+            return codeMatcher.IsValid
+                ? codeMatcher.InsertAndAdvance(
+                        new(OpCodes.Ldloc_1), // Load `shipTeleporter` onto the stack
+                        new(OpCodes.Call, AccessTools.Method(typeof(FlarePatches), nameof(TeleporterPositionDistorter))))
+                    .Advance(10)
+                    .Insert(
+                        new(OpCodes.Ldloc_1),
+                        new(OpCodes.Call, AccessTools.Method(typeof(FlarePatches), nameof(TeleporterPositionRestorer))))
+                    .InstructionEnumeration()
+                : instructions;
         }
 
         private static void TeleporterPositionDistorter(ShipTeleporter teleporter)
@@ -256,39 +240,28 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> RadioDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(true, // Replace audio source creation logic
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(WalkieTalkie), nameof(WalkieTalkie.audioSourcesReceiving))),
+                new(OpCodes.Ldloc_3),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(WalkieTalkie), nameof(WalkieTalkie.target))),
+                new(OpCodes.Callvirt, AccessTools.Method(typeof(Component), "get_gameObject")));
 
-            // Replace audio source creation logic
-            codeMatcher = codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(WalkieTalkie), "audioSourcesReceiving")),
-                new CodeMatch(OpCodes.Ldloc_3),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(WalkieTalkie), "target")),
-                new CodeMatch(OpCodes.Callvirt, AccessTools.Method(typeof(Component), "get_gameObject"))
-            );
-
-            codeMatcher.Advance(1);
-
-            codeMatcher.SetInstruction(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FlareOptionalWalkiePatches),
-                                                                                            nameof(SplitWalkieTarget))));
-
-            // Replace audio source disposal logic
-            codeMatcher = codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Ldloc_1),
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Object), "Destroy", [typeof(Object)]))
-            )
-            .Repeat(matcher =>
-            {
-                matcher.SetInstruction(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FlareOptionalWalkiePatches),
-                                                                                            nameof(DisposeWalkieTarget),
-                     [typeof(AudioSource), typeof(GameObject)])));
-                matcher.Insert(new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(Component), "get_gameObject")));
-                matcher.Insert(new CodeInstruction(OpCodes.Ldarg_0));
-                ;
-            });
-
-            return codeMatcher.InstructionEnumeration();
+            return codeMatcher.IsValid
+                ? codeMatcher.Advance(1)
+                    .SetInstruction(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FlareOptionalWalkiePatches),
+                        nameof(SplitWalkieTarget))))
+                    .MatchForward(true, // Replace audio source disposal logic
+                        new(OpCodes.Ldloc_1),
+                        new(OpCodes.Call, AccessTools.Method(typeof(Object), nameof(Object.Destroy), [typeof(Object)])))
+                    .Repeat(matcher => matcher.InsertAndAdvance(
+                            new(OpCodes.Ldarg_0),
+                            new(OpCodes.Callvirt, AccessTools.Method(typeof(Component), "get_gameObject")))
+                        .SetInstruction(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FlareOptionalWalkiePatches),
+                            nameof(DisposeWalkieTarget)))))
+                    .InstructionEnumeration()
+                : instructions;
         }
 
         private static AudioSource SplitWalkieTarget(GameObject target)

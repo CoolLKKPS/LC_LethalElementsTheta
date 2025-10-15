@@ -34,31 +34,28 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.VeryHigh)]
         private static IEnumerable<CodeInstruction> SnowHindranceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
-            codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "movementSpeed")),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "carryWeight")),
-                new CodeMatch(OpCodes.Div),
-                new CodeMatch(OpCodes.Stloc_S)
-            );
-            if (!codeMatcher.IsValid)
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(true,
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.movementSpeed))),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.carryWeight))),
+                new(OpCodes.Div),
+                new(OpCodes.Stloc_S));
+
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to match code in SnowHindranceTranspiler");
                 return instructions;
             }
 
-            int num3Index = ((LocalBuilder)codeMatcher.Operand).LocalIndex;
+            _ = codeMatcher.Advance(1)
+            .Insert(
+                new CodeInstruction(OpCodes.Ldloc_S, 8), // Load V_8 onto the stack
+                new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(SnowfallVFXManager),
+                    nameof(SnowfallVFXManager.snowMovementHindranceMultiplier))),
+                new CodeInstruction(OpCodes.Div),        // Divide V_8 by hindrance multiplier
+                new CodeInstruction(OpCodes.Stloc_S, 8));  // Store the modified value back
 
-            codeMatcher.Advance(1);
-
-            codeMatcher.InsertAndAdvance(
-                new CodeInstruction(OpCodes.Ldloc_S, num3Index), // Load num3 onto the stack
-                new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(SnowfallVFXManager), "snowMovementHindranceMultiplier")),
-                new CodeInstruction(OpCodes.Div),        // Divide num3 by hindrance multiplier
-                new CodeInstruction(OpCodes.Stloc_S, num3Index)  // Store the modified value back
-            );
             Debug.Log("Patched PlayerControllerB.Update to include snow hindrance!");
             return codeMatcher.InstructionEnumeration();
         }
@@ -67,8 +64,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundSamplingTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
-            codeMatcher.MatchForward(false,
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "interactRay")),
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -78,16 +74,16 @@ namespace VoxxWeatherPlugin.Patches
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StartOfRound), "walkableSurfacesMask"))
             );
 
-            if (!codeMatcher.IsValid)
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to match code in GroundSamplingTranspiler");
                 return instructions;
             }
 
-            codeMatcher.RemoveInstructions(20);
-            codeMatcher.InsertAndAdvance(
-                new CodeInstruction(OpCodes.Ldarg_0),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(SurfaceSamplingOverride)))
+            _ = codeMatcher.RemoveInstructions(20)
+            .InsertAndAdvance(
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(SurfaceSamplingOverride)))
             );
 
             Debug.Log("Patched PlayerControllerB.GetCurrentMaterialStandingOn to include snow thickness!");
@@ -98,26 +94,24 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundNormalTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
-            codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), "hit")),
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(RaycastHit), "get_normal")),
-                new CodeMatch(OpCodes.Stfld, AccessTools.Field(typeof(PlayerControllerB), "playerGroundNormal"))
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(true,
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.hit))),
+                new(OpCodes.Call, AccessTools.Method(typeof(RaycastHit), "get_normal")),
+                new(OpCodes.Stfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.playerGroundNormal)))
             );
 
-            if (!codeMatcher.IsValid)
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to match code in GroundNormalTranspiler");
                 return instructions;
             }
-            codeMatcher.Advance(1);
-            codeMatcher.Insert(
-                new CodeInstruction(OpCodes.Ldarg_0),
+
+            _ = codeMatcher.Advance(1)
+            .Insert(new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldloc_1),
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(LocalGroundUpdate)))
-            );
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(LocalGroundUpdate))));
 
             Debug.Log("Patched PlayerControllerB.CalculateGroundNormal to include snow thickness!");
             return codeMatcher.InstructionEnumeration();
@@ -128,42 +122,35 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.High)]
         private static IEnumerable<CodeInstruction> IceRebakeTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            List<CodeInstruction> codes = [.. instructions];
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, generator).MatchForward(false,
+                new(OpCodes.Ldloc_S),
+                new(OpCodes.Ldc_I4_0),
+                new(OpCodes.Ble),
+                new(OpCodes.Ldstr))
+            .Advance(2);
 
-            for (int i = 0; i < codes.Count - 4; i++)
+            if (codeMatcher.IsInvalid)
             {
-                if (codes[i].opcode == OpCodes.Ldloc_S &&
-                    codes[i + 1].opcode == OpCodes.Ldc_I4_0 &&
-                    codes[i + 2].opcode == OpCodes.Ble &&
-                    codes[i + 3].opcode == OpCodes.Ldstr)
-                {
-                    // Get the original target of the fail jump
-                    Label originalTarget = (Label)codes[i + 2].operand;
-
-                    // Define a new label for the fail jump target
-                    Label failJumpTarget = generator.DefineLabel();
-                    // Insert an additional condition
-                    codes.InsertRange(i,
-                    [
-                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(DelayRebakeForIce))),
-                        new CodeInstruction(OpCodes.Brfalse, failJumpTarget)
-                    ]);
-
-                    // Find the original jump target and add the new label
-                    for (int j = i + 4; j < codes.Count; j++)
-                    {
-                        if (codes[j].labels.Contains(originalTarget))
-                        {
-                            codes[j].labels.Add(failJumpTarget);
-                            break;
-                        }
-                    }
-
-                    Debug.Log("Patched RoundManager.SpawnOutsideHazards to include ice rebake condition!");
-                    break;
-                }
+                return instructions;
             }
-            return codes;
+
+            // Get the original target of the fail jump
+            Label originalTarget = (Label)codeMatcher.Operand;
+
+            // Define a new label for the fail jump target
+            Label failJumpTarget = generator.DefineLabel();
+            Debug.Log("gullible3");
+
+            List<Label> labels = codeMatcher.Advance(-2)
+            .InsertAndAdvance( // Insert an additional condition
+                new(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(DelayRebakeForIce))),
+                new(OpCodes.Brfalse, failJumpTarget))
+            .MatchForward(false, new CodeMatch(operand: originalTarget)).Labels;
+
+            labels.Add(failJumpTarget); // Add the new label
+
+            Debug.Log("Patched RoundManager.SpawnOutsideHazards to include ice rebake condition!");
+            return codeMatcher.InstructionEnumeration();
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
@@ -553,21 +540,19 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.First)]
         private static IEnumerable<CodeInstruction> LowResTransparencyTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            CodeMatcher codeMatcher = new(instructions);
-
-            codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldarg_1), // renderGraph
-                new CodeMatch(OpCodes.Ldarg_2), // hdCamera
-                new CodeMatch(OpCodes.Ldarg_3), // colorBuffer
-                new CodeMatch(OpCodes.Ldarg_S), // normalBuffer 
-                new CodeMatch(OpCodes.Ldarg_S), // prepassOutput
-                new CodeMatch(OpCodes.Ldfld),
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "RenderUnderWaterVolume")),
-                new CodeMatch(OpCodes.Starg_S)  // colorBuffer
+            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(true,
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldarg_1), // renderGraph
+                new(OpCodes.Ldarg_2), // hdCamera
+                new(OpCodes.Ldarg_3), // colorBuffer
+                new(OpCodes.Ldarg_S), // normalBuffer 
+                new(OpCodes.Ldarg_S), // prepassOutput
+                new(OpCodes.Ldfld),
+                new(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "RenderUnderWaterVolume")),
+                new(OpCodes.Starg_S)  // colorBuffer
             );
 
-            if (!codeMatcher.IsValid)
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to find a match for RenderUnderWaterVolume");
                 return instructions;
@@ -576,11 +561,10 @@ namespace VoxxWeatherPlugin.Patches
             // Save next instruction index
             int beginIndex = codeMatcher.Pos + 1;
 
-            codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "UpsampleTransparent"))
-            );
+            _ = codeMatcher.MatchForward(true,
+                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "UpsampleTransparent")));
 
-            if (!codeMatcher.IsValid)
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to find a match for UpsampleTransparent");
                 return instructions;
@@ -599,27 +583,25 @@ namespace VoxxWeatherPlugin.Patches
             // }
             // Debug.LogDebug("End of LowResBlock");
             // Remove the block of code from the original instructions
-            codeMatcher.RemoveInstructionsInRange(beginIndex, endIndex);
-            codeMatcher.Start();
-
-            // Find the insertion point
-            codeMatcher.MatchForward(true,
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "RenderForwardTransparent")),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldarg_2),
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "ResetCameraMipBias"))
+            _ = codeMatcher.RemoveInstructionsInRange(beginIndex, endIndex)
+            .Start()
+            .MatchForward(true, // Find the insertion point
+                new(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "RenderForwardTransparent")),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldarg_2),
+                new(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "ResetCameraMipBias"))
             );
 
-            if (!codeMatcher.IsValid)
+            if (codeMatcher.IsInvalid)
             {
                 Debug.LogError("Failed to find a match for RenderForwardTransparent");
                 return instructions;
             }
 
             // Insert the block of code that renders transparent objects in low resolution after SetGlobalColorForCustomPass
-            codeMatcher.Advance(1).Insert(lowResBlock);
-
-            return codeMatcher.InstructionEnumeration();
+            return codeMatcher.Advance(1)
+            .Insert(lowResBlock)
+            .InstructionEnumeration();
         }
     }
 }

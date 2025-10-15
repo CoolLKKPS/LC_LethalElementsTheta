@@ -90,36 +90,19 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> HeatstrokeAudioPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            List<CodeInstruction> codes = [.. instructions];
-
-            for (int i = 0; i < codes.Count - 2; i++)
-            {
-                if (codes[i].opcode == OpCodes.Ldfld &&
-                    codes[i].operand.ToString().Contains("drunkness") &&
-                    codes[i + 1].opcode == OpCodes.Callvirt &&
-                    codes[i + 1].operand.ToString().Contains("Evaluate") &&
-                    codes[i + 2].opcode == OpCodes.Ldc_R4 &&
-                    (float)codes[i + 2].operand == 0.6f)
-                {
-                    // Store the original jump target
-                    object originalJumpTarget = codes[i + 3].operand;
-                    // Replace the original target
-                    Label jumpTarget = generator.DefineLabel();
-                    codes[i + 3] = new CodeInstruction(OpCodes.Bgt_S, jumpTarget);
-
-                    // Insert the additional condition
-                    codes.InsertRange(i + 4, [
-                        new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(PlayerEffectsManager), "HeatSeverity")),
-                        new CodeInstruction(OpCodes.Ldc_R4, 0.85f),
-                        new CodeInstruction(OpCodes.Ble_Un_S, originalJumpTarget)
-                    ]);
-                    // Connect the new jump target
-                    codes[i + 7].labels.Add(jumpTarget);
-
-                    break;
-                }
-            }
-            return codes;
+            return new CodeMatcher(instructions, generator).MatchForward(true,
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.drunkness))),
+                new(OpCodes.Callvirt, AccessTools.Method(typeof(AnimationCurve), nameof(AnimationCurve.Evaluate))),
+                new(OpCodes.Ldc_R4, 0.6f))
+            .Advance(2)
+            .CreateLabel(out Label jumpTarget)
+            .Advance(-1)
+            .InsertAndAdvance(
+                new(OpCodes.Bgt_S, jumpTarget),
+                new(OpCodes.Call, AccessTools.PropertyGetter(typeof(PlayerEffectsManager),
+                    nameof(PlayerEffectsManager.HeatSeverity))),
+                new(OpCodes.Ldc_R4, 0.85f))
+            .InstructionEnumeration();
         }
 
         //     [HarmonyPatch(typeof(VehicleController), "Start")]
