@@ -132,16 +132,17 @@ namespace VoxxWeatherPlugin.Weathers
 
             RefreshGlitchCameras();
 
-            TerminalAccessibleObject[] terminalObjects = FindObjectsOfType<TerminalAccessibleObject>();
+            TerminalAccessibleObject[] terminalObjects = FindObjectsByType<TerminalAccessibleObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             bigDoors = [.. terminalObjects.Where(obj => obj.isBigDoor)];
 
-            EnemyAINestSpawnObject[] radMechNests = [.. FindObjectsOfType<EnemyAINestSpawnObject>().Where(obj => obj.enemyType.enemyName == "RadMech")];
+            EnemyAINestSpawnObject[] radMechNests = [.. FindObjectsByType<EnemyAINestSpawnObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+                .Where(obj => obj.enemyType.enemyName == "RadMech")];
             foreach (EnemyAINestSpawnObject radMechNest in radMechNests)
             {
                 CreateStaticParticle(radMechNest);
             }
 
-            Landmine[] mines = FindObjectsOfType<Landmine>();
+            Landmine[] mines = FindObjectsByType<Landmine>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (Landmine mine in mines)
             {
                 CreateStaticParticle(mine);
@@ -764,13 +765,10 @@ namespace VoxxWeatherPlugin.Weathers
                 Debug.LogDebug("Sun texture not found! Trying Physically Based Sky for Corona VFX.");
 
                 // Check every Volume component in the specific scene LevelManipulator.Instance.CurrentSceneName
-                Volume[] volumes = FindObjectsOfType<Volume>();
+                Volume[] volumes = FindObjectsByType<Volume>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
                 float invBloomStrength = 1f;
                 foreach (Volume volume in volumes)
                 {
-                    if (!volume.enabled || !volume.gameObject.activeInHierarchy)
-                        continue;
-
                     if (volume.gameObject.scene.name == LevelManipulator.CurrentSceneName &&
                         volume.profile.TryGet(out PhysicallyBasedSky physicallyBasedSky))
                     {

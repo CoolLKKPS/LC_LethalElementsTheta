@@ -147,7 +147,7 @@ namespace VoxxWeatherPlugin.Weathers
             factoryFumesAmount = Mathf.CeilToInt(fumesAmount * FactoryAmountMultiplier * dungeonSize);
 
             // Cache entrance positions and map objects
-            EntranceTeleport[] entrances = FindObjectsOfType<EntranceTeleport>();
+            EntranceTeleport[] entrances = FindObjectsByType<EntranceTeleport>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             Transform mapPropsContainer = GameObject.FindGameObjectWithTag("MapPropsContainer").transform;
 
             if (fumesContainerOutside == null)

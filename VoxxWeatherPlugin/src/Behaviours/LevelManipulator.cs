@@ -482,7 +482,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
 
             // Find all Entrances in the scene
-            EntranceTeleport[] entranceTeleports = FindObjectsOfType<EntranceTeleport>();
+            EntranceTeleport[] entranceTeleports = FindObjectsByType<EntranceTeleport>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
             foreach (EntranceTeleport entranceTeleport in entranceTeleports)
             {
@@ -1125,14 +1125,10 @@ namespace VoxxWeatherPlugin.Behaviours
             stopwatch.Start();
 
 #if DEBUG
-            waterTriggerObjects = [.. FindObjectsOfType<QuicksandTrigger>().Where(x => x.enabled &&
-                                                                                x.gameObject.activeInHierarchy &&
-                                                                                x.isWater &&
+            waterTriggerObjects = [.. FindObjectsByType<QuicksandTrigger>(FindObjectsInactive.Exclude, FindObjectsSortMode.None).Where(x => x.isWater &&
                                                                                 x.gameObject.scene.name == CurrentSceneName)];
 #else
-            waterTriggerObjects = [.. FindObjectsOfType<QuicksandTrigger>().Where(x => x.enabled &&
-                                                                                x.gameObject.activeInHierarchy &&
-                                                                                x.isWater &&
+            waterTriggerObjects = [.. FindObjectsByType<QuicksandTrigger>(FindObjectsInactive.Exclude, FindObjectsSortMode.None).Where(x => x.isWater &&
                                                                                 x.gameObject.scene.name == CurrentSceneName &&
                                                                                 !x.isInsideWater)];
 #endif
@@ -1260,9 +1256,8 @@ namespace VoxxWeatherPlugin.Behaviours
 
         internal void ModifyScrollingFog(float fogStrengthMin = 0f, float fogStrengthMax = 15f)
         {
-            LocalVolumetricFog[] fogArray = FindObjectsOfType<LocalVolumetricFog>();
-            fogArray = [.. fogArray.Where(x => x.gameObject.activeSelf &&
-                                        x.gameObject.scene.name == CurrentSceneName &&
+            LocalVolumetricFog[] fogArray = FindObjectsByType<LocalVolumetricFog>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            fogArray = [.. fogArray.Where(x => x.gameObject.scene.name == CurrentSceneName &&
                                         x.transform.position.y > heightThreshold)];
             float additionalMeanFreePath = seededRandom!.NextDouble(fogStrengthMin, fogStrengthMax); // Could be negative
             if (BlizzardWeather.Instance != null && BlizzardWeather.Instance.IsActive && LESettings.useVolumetricBlizzardFog.Value)
