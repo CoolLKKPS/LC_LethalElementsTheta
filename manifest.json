@@ -1,11 +1,11 @@
 {
-    "name": "LethalElementsBeta",
-    "version_number": "1.2.81",
+    "name": "LethalElementsTheta",
+    "version_number": "1.3.0",
     "website_url": "https://discord.com/channels/1168655651455639582/1268919667347427390",
-    "description": "A mod that adds five new weather effects!",
+    "description": "[v73] A mod that adds five new weather effects! (Fork of LethalElementsBeta)",
     "dependencies": [
-        "mrov-WeatherRegistry-0.5.3",
-        "Evaisa-FixPluginTypesSerialization-1.1.1",
+        "mrov-WeatherRegistry-0.7.4",
+        "Evaisa-FixPluginTypesSerialization-1.1.4",
         "v0xx-TerraMesh-1.2.0"
     ]
 }

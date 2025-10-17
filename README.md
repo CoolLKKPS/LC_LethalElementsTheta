@@ -1,6 +1,8 @@
-# Lethal Elements BETA
+# Lethal Elements THETA (θ)
 
-<strong style="color:red;">This is a BETA release for testing purposes. Expect bugs and explosions :P </strong>
+> Fork of [LethalElementsBeta](https://thunderstore.io/c/lethal-company/p/v0xx/LethalElementsBeta) by [v0xx](https://github.com/v0xx-dev) updated for the latest game versions (`v73` and above), with some additional fixes and small changes.
+
+---
 
 A weather enhancement mod for Lethal Company that introduces new environmental challenges to test your survival skills.
 
@@ -41,12 +43,13 @@ Solar flares come in four intensities: **Weak**, **Mild**, **Average**, and **St
 - Door Malfunction: (Strong and Average only) Steel doors in facilities become unresponsive to manual controls, randomly opening and closing throughout the day.
 - Visual Effects:
 
-    - Daytime: Observe intense solar activity on the sun's surface.
-    - Nighttime: Witness breathtaking **auroras** painting the sky in vibrant colors.
+  - Daytime: Observe intense solar activity on the sun's surface.
+  - Nighttime: Witness breathtaking **auroras** painting the sky in vibrant colors.
 
 <img src="https://i.imgur.com/gK85ndi.gif" alt="Aurora" width="400">
 
 **Countermeasures**:
+
 - Activate *radar boosters* to mitigate some of the interference effects.
 
 <img src="https://i.imgur.com/uq2Y2qK.gif" alt="Solar Flare Effect" width="300">
@@ -65,7 +68,7 @@ Bundle up and prepare for a wintry landscape that evolves as the storm continues
 - **Freezing Hazard**: Stay too long in deep snow, and you'll risk freezing solid-find warmth or shelter to survive.  
 - **Frozen Waters**: Open water bodies freeze over, creating both opportunities and obstacles.  
 
-<img src="https://i.imgur.com/hd6HWUV.png" alt="Fluffy snow!" width="500"> 
+<img src="https://i.imgur.com/hd6HWUV.png" alt="Fluffy snow!" width="500">
 
 ---
 
@@ -82,11 +85,11 @@ The ultimate test of endurance-survive the unforgiving fury of a full-blown bliz
 
 Stay alert and adapt to the unpredictable weather to outlast the storm!  
 
-<img src="https://i.imgur.com/ZVLBQbM.png" alt="Icy wave" width="500"> 
+<img src="https://i.imgur.com/ZVLBQbM.png" alt="Icy wave" width="500">
 
 ---
 
-### Health hazard: Toxic Smog 
+### Health hazard: Toxic Smog
 
 <img src="https://i.imgur.com/4njKFQq.gif" alt="Poisoned environment" width="500">  
 
@@ -112,37 +115,44 @@ Evade the deadly clouds and manage your exposure to survive the choking grip of 
 - If you have very low fps trails left by other player might not have the same depth as for others (possibly fixable, but requires lots of additional work)
 - Monsters will be slowed down only in the vicinity of the host player (fixable, but very performance costly)
 
+<!-- ### Installation
 
-### Installation
 1. Download and install the mod using r2modman or Thunderstore Mod Manager.
 2. Ensure you have BepInEx installed.
 3. Launch Lethal Company and prepare for new weather challenges!
 
-***Mods that can increase render distance like [ViewExtension](https://thunderstore.io/c/lethal-company/p/sfDesat/ViewExtension/) or [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) (requires configuration) are HIGHLY recommended! Choose a view distance of 750 and above for the best experience.***
+***Mods that can increase render distance like [ViewExtension](https://thunderstore.io/c/lethal-company/p/sfDesat/ViewExtension/) or [CullFactory](https://thunderstore.io/c/lethal-company/p/fumiko/CullFactory/) (requires configuration) are HIGHLY recommended! Choose a view distance of 750 and above for the best experience.*** -->
 
 ### Planned Features
+
 - ???
 
 Stay tuned for updates!
 
 ### Credits
-**Developer**: voxx
 
-**Special Thanks**: 
-- **mrov** for creating WeatherRegistry
-- **PureFPSZac** and **s1ckboi** for the initial blizzard weather concept
-- The Lethal Company modding community for inspiration and support
+- **Fork Maintainer:** [pacoito](https://github.com/pacoito123)
+- **Original Developer**: [v0xx](https://github.com/v0xx-dev)
+
+**Special Thanks**:
+
+- [mrov](https://github.com/AndreyMrovol) for creating [WeatherRegistry](https://thunderstore.io/c/lethal-company/p/mrov/WeatherRegistry).
+- [PureFPSZac](https://github.com/PureFPSZac) and [s1ckboy](https://github.com/s1ckboii) for the initial Blizzard weather concept.
+- The Lethal Company modding community for inspiration and support!
 
 ### License
-This mod is licensed under the CC BY-NC License.
+
+This mod is licensed under the [Attribution-NonCommercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0) License (`CC BY-NC 4.0`).
 
 ### Source code
-https://github.com/v0xx-dev/VoxxWeatherPlugin
+
+- **Fork:** <https://github.com/pacoito/LC_LethalElementsTheta>
+- **Original:** <https://github.com/v0xx-dev/VoxxWeatherPlugin>
 
 ### Contact
+
 For bug reports, suggestions, or general feedback:
-- Discord: \_v0xx_
 
+- **Discord:** `pacoito`, or `_v0xx_` if he returns *(we miss you!)*
 
-
-Enjoy the new weather challenges, and may your scavenging missions be both profitable and survivable!
+<!-- Enjoy the new weather challenges, and may your scavenging missions be both profitable and survivable! -->

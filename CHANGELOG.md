@@ -1,18 +1,49 @@
 # Changelog
 
-# [1.2.81b] - 2025-03-03
+## [1.3.θ] - 2025-1θ-17
+
+### Theta (θ) release
+
+#### General
+
+- Recompiled with updated dependencies for LC `v73`.
+  - **NOTE:** This release is _not_ backwards-compatible with `v72` and below.
+  - **NOTE #2:** [LEBWeatherFix](https://thunderstore.io/c/lethal-company/p/Sniper1_1/LEBWeatherFix) is no longer needed for `Toxic Smog` to work properly.
+- Switched over to the new `Rpc` attribute, and removed `Netcode` patching step.
+
+#### Fixes
+
+- Fixed [OpenBodyCams](https://thunderstore.io/c/lethal-company/p/Zaggy1024/OpenBodyCams) soft compatibility throwing errors when _not_ present.
+- Fixed `enemySpawnBlacklist` config setting not applying at the appropriate time.
+  - Enemy blacklist is now applied when the snow becomes ready instead of immediately at the start of the round, so `LevelManipulator.IsSnowReady()` is not always false.
+
+#### Tweaks
+
+- Added custom colors to the supported combined and progressing weathers (when using [WeatherTweaks](https://thunderstore.io/c/lethal-company/p/mrov/WeatherTweaks)), and renamed `Snowfall + Solar Flare` to `Aurora Borealis`.
+- Made some small (internal) tweaks to the config.
+  - Orphaned nodes are now cleared automatically, if any are present.
+  - Configuration file no longer saves after every individual `Bind()` call.
+- Tweaked transpiler patches a bit.
+  - Rewrote the ones that weren't using `CodeMatcher`, and did small formatting tweaks for the ones that were.
+  - IL code end result is exactly the same, but the transpilers are now about 5% more readable!
+- Did some minor refactoring all around.
+  - Removed usages of null propagation with `Unity` objects.
+  - Added some missing null checks.
+  - Made some small optimizations.
+
+## [1.2.81b] - 2025-03-03
 
 ### Performance improvements
 
 - Much better VFX collision detection
 - Snow doesn't appear underwater anymore
-- Fixed some bugs with ice on moons with moving water level 
+- Fixed some bugs with ice on moons with moving water level
 - Added options in the config to limit FPS on cameras used for collision detection
 - Fixed bugs with VSM depth map baking
 - Made async processing truly parallel, should speed up mesh algorithms significantly
 - Fixed a very rare bug with black screen appearing due to errors with TerraMesh
 
-# [1.2.80b] - 2025-19-02
+## [1.2.80b] - 2025-19-02
 
 ### Solar Flare Revamp + Various Improvements (Beta release)
 
@@ -21,9 +52,11 @@
 - Updated to the new WeatherRegistry's config system. Now every weather has predefined weather to weather weights, special level weights and tag based filters!
 
 #### Heatwave
+
 - Changed the way particles spawn to a coroutine so it wouldn't prevent the game from running normally while it's being done
 
 #### Toxic Fog
+
 - Optimized toxic smoke visual to reduce performance overhead, added proper translucency
 - Fixed possible desync of interior fumes positions
 
@@ -49,16 +82,17 @@ Volumetric only is the default option now! Fog density adjustable in the config.
 - Improved performance and robustness of the distortion filter and removed unnecessary allocations.
 - OpenBodyCams compatibility - now its cameras will be distorted as well!
 - Added 4 types of electric malfunctions that can occur during the flare
-/<details>
-  <summary>Spoiler</summary>
 
-  ```
+<details><summary>Spoiler</summary>
+
+  ```text
   1. Turret malfunction - they can occasionally go berserk
   2 + 3. Old Birds - they can be reactivated prematurely during the day or stunned randomly, giving you some time to escape
   4. Landmine - they have a very low chance of spontaneously triggering
 
   Each malfunction is indicated by an electric sound and static charge particles
   ```
+
 </details>
 
 #### WeatherTweaks compatibility
@@ -70,7 +104,7 @@ In case WeatherTweaks is detected, adds several new weather combinations
 - Solar Flare > Heatwave (toasty!)
 - Snowfall + Solar Flare (polar circle vibes!)
 
-# [1.2.74b] - 2025-11-02
+## [1.2.74b] - 2025-11-02
 
 ### Snow & Toxic update (Beta release)
 
@@ -96,7 +130,6 @@ In case WeatherTweaks is detected, adds several new weather combinations
 - Rebalanced some configs regarding snow height as a result + blacklisted volcanic moons by default (reset WR config for snow and blizzard for that)
 - Temporarily disabled ice by default
 - Fixed NRE if snow is disabled, but blizzard isn't
-
 
 ## [1.2.71b] - 2025-24-01
 
@@ -242,6 +275,7 @@ In case WeatherTweaks is detected, adds several new weather combinations
 ## [1.1.8] - 2024-09-09
 
 ### Bugfix
+
 - Hopefully fixed more incompatibilities with Lethal Performance
 - Added config for the static noise from walkies, reduced default volume
 - Fixed small bug with randomization picking that was forcing it to hardcoded defaults if min=max
@@ -249,27 +283,32 @@ In case WeatherTweaks is detected, adds several new weather combinations
 ## [1.1.7] - 2024-08-23
 
 ### Bugfix
+
 - Hopefully fixed an incompatibility with Lethal Performance
 
 ## [1.1.6] - 2024-08-21
 
 ### Bugfix
+
 - Fixed possible NRE under certain conditions that broke the radar map
 - Improved compatibility of the teleporter distortion with other mods and fixed problems with dead bodies desyncing
 
 ## [1.1.5] - 2024-08-17
 
 ### Bugfix
+
 - Fixed missing player voices after rejoin
 
 ## [1.1.4] - 2024-08-13
 
 ### Hotfix
+
 - Fixed an error when full distortion of the walkie talkie sounds is enabled
 
 ## [1.1.3] - 2024-08-13
 
 ### Solar Flare Update
+
 - New config options
 - Nerfed default battery drain speed (now 60 - 200%)
 - Doors can malfunction slightly more frequently now
@@ -277,6 +316,7 @@ In case WeatherTweaks is detected, adds several new weather combinations
 ## [1.1.2] - 2024-08-12
 
 ### Solar Flare Update
+
 - Increased default luminosity threshold for aurora (should appear earlier now, reset config for that)
 - Fixed aurora disappearing at certain angles
 - Fixed missing VFX on planets without a sun
@@ -285,12 +325,14 @@ In case WeatherTweaks is detected, adds several new weather combinations
 ## [1.1.1] - 2024-08-12
 
 ### Solar Flare Update
+
 - Solar flare no longer affects item batteries when you are in a facility
 - On the surface discharge is even faster now (50 - 500 % faster depending on the strength of a flare)
 
 ## [1.1.0] - 2024-08-11
 
 ### Solar Flare Update
+
 - Added new weather - Solar Flare!
 - Water now cools you down in Heatwave weather
 - Added auditory distortion when you have a heatstroke
@@ -299,5 +341,5 @@ In case WeatherTweaks is detected, adds several new weather combinations
 ## [1.0.0] - 2024-07-24
 
 ### Release
-- Initial release.
 
+- Initial release.

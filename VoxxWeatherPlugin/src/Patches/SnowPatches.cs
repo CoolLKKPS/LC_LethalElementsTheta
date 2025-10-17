@@ -140,7 +140,6 @@ namespace VoxxWeatherPlugin.Patches
 
             // Define a new label for the fail jump target
             Label failJumpTarget = generator.DefineLabel();
-            Debug.Log("gullible3");
 
             List<Label> labels = codeMatcher.Advance(-2)
             .InsertAndAdvance( // Insert an additional condition

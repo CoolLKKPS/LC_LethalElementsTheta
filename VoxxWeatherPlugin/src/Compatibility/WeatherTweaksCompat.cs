@@ -9,7 +9,7 @@ namespace VoxxWeatherPlugin.Compatibility
     internal sealed class WeatherTweaksCompat
     {
         /// <summary>
-        ///     Whether LethalLevelLoader is present in the BepInEx Chainloader or not.
+        ///     Whether WeatherTweaks is present in the BepInEx Chainloader or not.
         /// </summary>
         public static bool Enabled
         {
@@ -68,7 +68,40 @@ namespace VoxxWeatherPlugin.Compatibility
                 {
                     Color = new(135.0f, 206.0f, 235.0f)
                 };
+
+                /* if (ConfigHelper.ResolveStringToWeather("hallowed") != null)
+                {
+                    _ = new CombinedWeatherType("Hall-snowed", [
+                        new WeatherNameResolvable("snowfall"), new WeatherNameResolvable("hallowed")])
+                    {
+                        Color = new(204.0f, 204.0f, 255.0f)
+                    };
+                } */
             }
+
+            /* if (LESettings.EnableBlizzardWeather.Value)
+            {
+                if (ConfigHelper.ResolveStringToWeather("forsaken") != null)
+                {
+                    _ = new CombinedWeatherType("Forsaken Blizzard", [
+                        new WeatherNameResolvable("blizzard"), new WeatherNameResolvable("forsaken")])
+                    {
+                        Color = new(0.0f, 33.0f, 71.0f)
+                    };
+                }
+            }
+
+            if (LESettings.EnableToxicSmogWeather.Value)
+            {
+                if (ConfigHelper.ResolveStringToWeather("hurricane") != null)
+                {
+                    _ = new CombinedWeatherType("Toxic Hurricane", [
+                        new WeatherNameResolvable("toxicsmog"), new WeatherNameResolvable("hurricane")])
+                    {
+                        Color = new(107.0f, 142.0f, 35.0f)
+                    };
+                }
+            } */
 
             IsWeatherRegistered = true;
             Debug.LogDebug("Registered custom combined and progressing weathers!");
