@@ -146,7 +146,7 @@ This mod is licensed under the [Attribution-NonCommercial 4.0 International](htt
 
 ### Source code
 
-- **Fork:** <https://github.com/pacoito/LC_LethalElementsTheta>
+- **Fork:** <https://github.com/pacoito123/LC_LethalElementsTheta>
 - **Original:** <https://github.com/v0xx-dev/VoxxWeatherPlugin>
 
 ### Contact

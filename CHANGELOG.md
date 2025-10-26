@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1] - TBD
+
+### TBD
+
+#### Fixes
+
+- Fixed `Heatwave` stamina hindering applying multiple times, once per player in the lobby.
+
 ## [1.3.θ] - 2025-1θ-17
 
 ### Theta (θ) release

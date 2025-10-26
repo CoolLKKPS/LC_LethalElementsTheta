@@ -20,9 +20,9 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.High)]
         private static void HeatStrokePatchPrefix(PlayerControllerB __instance)
         {
-            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || __instance != (GameNetworkManager.Instance != null
-                && GameNetworkManager.Instance.localPlayerController))
-                return;
+            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || GameNetworkManager.Instance == null
+                || __instance != GameNetworkManager.Instance.localPlayerController) return;
+
             prevSprintMeter = __instance.sprintMeter;
         }
 
@@ -31,9 +31,8 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.Low)]
         private static void HeatStrokePatchLatePostfix(PlayerControllerB __instance)
         {
-            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || __instance != (GameNetworkManager.Instance != null
-                && GameNetworkManager.Instance.localPlayerController))
-                return;
+            if (HeatwaveWeather.Instance == null || !HeatwaveWeather.Instance.IsActive || GameNetworkManager.Instance == null
+                || __instance != GameNetworkManager.Instance.localPlayerController) return;
 
             if (CheckConditionsForHeatingStop(__instance))
             {
