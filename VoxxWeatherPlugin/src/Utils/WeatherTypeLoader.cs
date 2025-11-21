@@ -230,22 +230,29 @@ namespace VoxxWeatherPlugin.Utils
 
             blizzardContainer.SetActive(true);
 
-            Weather BlizzardWeatherType = new("Blizzard", new(effectObject, effectPermanentObject) { SunAnimatorBool = "overcast" })
+            ImprovedWeatherEffect blizzardWeatherEffect = new(effectObject, effectPermanentObject)
             {
-                Color = Color.cyan,
+                SunAnimatorBool = "overcast",
+            };
+
+            Weather BlizzardWeatherType = new("Blizzard", blizzardWeatherEffect)
+            {
+                Color = new Color32(0, 112, 255, 255), // Brandeis Blue - #0070FF
                 Config =
                 {
-                    LevelFilters = new(["Gordion", "Galetry", "Experimentation", "Assurance", "Offense", "Embrion", "EGypt", "Penumbra",
-                        "EchoReach", "Infernis", "Atlantica", "Gloom", "Orion", "Vertigo", "RelayStation", "Vaporization", "Praetor",
-                        "Lithium", "Arcadia", "Sector", "Ichor", "AtlasAbyss", "Asteroid13", "Hyve", "Desolation", "Cosmocos", "Aquatis",
-                        "Junic", "Detritus", "CaltPrime", "Vow", "Makron", "Calist", "Thalasso", "Empra", "Attenuation", "Argent",
-                        "Humidity", "Sierra", "Black Mesa", "Elasticity",
-                        "$Volcanic"]),
+                    LevelFilters = new(["Gordion", "Galetry", "Assurance", "Embrion", "Acidir", "Alcatras", "Atlantica", "Asteroid13",
+                        "Berunah", "Calist", "Core", "Cosmocos", "Demetrica", "Desolation", "Dreck", "Empra", "Etern", "Extort", "Facto", "FissionC", "Gloom", "Hyve", "Hyx",
+                        "Junic", "Lecaro", "Narcotic", "Oldred", "Release", "Repress", "Roart", "Thalasso", "Baykal", "Cabal", "CTFFace", "Lithium", "Makron", "Mazon", "Praetor",
+                        "Scald", "TheIris", "Trepidation", "Arelion", "USCVortex", "Elasticity", "Affliction", "Sector0", "Desperation", "Solitude", "Symbiosis", "Thallasic",
+                        "Viscera", "Attenuation", "Retinue", "Acheron", "Bilge", "Terra", "Obscura", "Kiln", "Lua", "Nostalgia", "Row", "Taldor", "Court", "Dreg", "Brutality",
+                        "Burrow", "Collateral", "Confiscation", "Corrosion", "Humidity", "Integrity", "Landslide", "Solidarity", "Submersion", "Vaporization", "Vertigo", "Phuket",
+                        "Rorm", "Starship13", "Kronodile", "Malice", "EGypt", "EchoReach", "Orion", "RelayStation", "AtlasAbyss", "Aquatis", "Detritus", "CaltPrimeArgent",
+                        "Sierra", "BlackMesa", "Pelagia", "Zeranos", "Vacuity", "Vulcan9", "Ganimedes",
+                        "$Volcanic", "$Desert", "$Beach", "$Warm"]),
                     FilteringOption = new(FilteringOption.Exclude),
-                    ScrapAmountMultiplier = new(1.4f),
-                    ScrapValueMultiplier = new(0.9f),
-                    LevelWeights = new(["Artifice@200", "Polarus@200",
-                        "$Tundra@120", "$Snow@120"]),
+                    ScrapAmountMultiplier = new(0.9f),
+                    ScrapValueMultiplier = new(1.15f),
+                    LevelWeights = new(["Artifice@200", "Polarus@200", "$Tundra@120", "$Snow@120", "$Cold@75"]),
                     WeatherToWeatherWeights = new(["Snowfall@150", "Cloudy@150", "Foggy@90", "Stormy@80", "Rainy@25",
                         "Blizzard@75", "Windy@75", "Flooded@30", "Heatwave@0", "DustClouds@0"]),
                     DefaultWeight = new(50),
@@ -306,23 +313,27 @@ namespace VoxxWeatherPlugin.Utils
                 SunAnimatorBool = "overcast",
             };
 
-            Weather SnowfallWeatherEffect = new("Snowfall", new(effectObject, effectPermanentObject) { SunAnimatorBool = "overcast" })
+            Weather SnowfallWeatherEffect = new("Snowfall", snowyWeatherEffect)
             {
-                Color = Color.blue,
+                Color = new Color32(224, 255, 255, 255), // LightCyan1 - #E0FFFF
                 Config =
                 {
-                    LevelFilters = new(["Gordion", "Galetry", "Assurance", "Embrion", "Sierra", "EGypt", "Penumbra", "EchoReach", "Infernis",
-                        "Atlantica", "Gloom", "Orion", "Vertigo", "RelayStation", "Vaporization", "Praetor", "Lithium", "Arcadia", "Sector",
-                        "Ichor", "AtlasAbyss", "Asteroid13", "Hyve", "Desolation", "Cosmocos", "Calist", "Empra", "Junic", "Detritus",
-                        "CaltPrime", "Submersion", "Maritopia", "Cambrian", "Halation", "Black Mesa", "Elasticity", "Thalasso",
-                        "$Volcanic"]),
+                    LevelFilters = new(["Gordion", "Galetry", "Assurance", "Embrion", "Acidir", "Alcatras", "Atlantica", "Asteroid13",
+                        "Berunah", "Calist", "Core", "Cosmocos", "Demetrica", "Desolation", "Dreck", "Empra", "Etern", "Extort", "Facto", "FissionC", "Gloom", "Hyve", "Hyx",
+                        "Junic", "Lecaro", "Narcotic", "Oldred", "Release", "Repress", "Roart", "Thalasso", "Baykal", "Cabal", "CTFFace", "Lithium", "Makron", "Mazon", "Praetor",
+                        "Scald", "TheIris", "Trepidation", "Arelion", "USCVortex", "Elasticity", "Affliction", "Sector0", "Desperation", "Solitude", "Symbiosis", "Thallasic",
+                        "Viscera", "Attenuation", "Retinue", "Acheron", "Bilge", "Terra", "Obscura", "Kiln", "Lua", "Nostalgia", "Row", "Taldor", "Court", "Dreg", "Brutality",
+                        "Burrow", "Collateral", "Confiscation", "Corrosion", "Humidity", "Integrity", "Landslide", "Solidarity", "Submersion", "Vaporization", "Vertigo", "Phuket",
+                        "Rorm", "Starship13", "Kronodile", "Malice", "EGypt", "EchoReach", "Orion", "RelayStation", "AtlasAbyss", "Aquatis", "Detritus", "CaltPrimeArgent",
+                        "Sierra", "BlackMesa", "Pelagia", "Zeranos", "Vacuity", "Vulcan9", "Ganimedes",
+                        "$Volcanic", "$Desert", "$Beach", "$Warm"]),
                     FilteringOption = new(FilteringOption.Exclude),
-                    ScrapAmountMultiplier = new(1.5f),
-                    ScrapValueMultiplier = new(0.75f),
+                    ScrapAmountMultiplier = new(0.85f),
+                    ScrapValueMultiplier = new(1.2f),
                     LevelWeights = new(["Artifice@300", "Polarus@300", "Vow@100", "Rockwell@200",
-                        "$Tundra@150", "$Snow@200"]),
+                        "$Tundra@150", "$Snow@200", "$Cold@100"]),
                     WeatherToWeatherWeights = new(["Snowfall@75", "Cloudy@150", "Foggy@100", "Stormy@80", "Rainy@25",
-                        "Blizzard@100", "Windy@75", "Heatwave@0", "DustClouds@0"]),
+                        "Blizzard@100", "Windy@75", "Heatwave@0", "DustClouds@0", "ToxicSmog@0"]),
                     DefaultWeight = new(60),
                 },
             };
