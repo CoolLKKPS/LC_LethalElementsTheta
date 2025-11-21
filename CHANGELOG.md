@@ -1,12 +1,31 @@
 # Changelog
 
-## [1.3.1] - TBD
+## [1.3.1] - 2025-11-21
 
-### TBD
+### Oily snow is no more
+
+#### General
+
+- Added a tag check to prevent water from being frozen during `Snowfall` and `Blizzard`.
+  - Moon makers can now stop their water from becoming ice by adding a `voxxDontFreezeMyWater` tag to their moon.
 
 #### Fixes
 
+- Fixed dark or 'oily' snow during `Snowfall` and `Blizzard`.
+  - From what I can tell, it was due to indirect lighting not being applied to the snow, despite the material being set up to receive it.
+  - Seems to be fixed by switching `skyAmbientMode` to `SkyAmbientMode.Dynamic` on a `VisualEnvironment` volume profile override, but it's more of a workaround.
 - Fixed `Heatwave` stamina hindering applying multiple times, once per player in the lobby.
+
+#### Tweaks
+
+- Some small tweaks to `Snowfall` and `Blizzard`.
+  - Changed monitor colors to a slightly different shade.
+  - Added a bunch of volcanic/desert/beach moons to the default level blacklist filter.
+  - Rebalanced default scrap multiplier values a bit.
+  - **NOTE:** `Snowfall` and `Blizzard` entries in the [WeatherRegistry](https://thunderstore.io/c/lethal-company/p/mrov/WeatherRegistry) config file will need to be manually reset for some of these changes to take effect.
+- Added a few more default combined and progressing weathers.
+  - Existing combined and progressing weathers are now registered through [Combined Weathers Toolkit](https://thunderstore.io/c/lethal-company/p/Zigzag/Combined_Weathers_Toolkit), if installed.
+  - Added `Hallsnowed`, `Forsaken Cold`, and `Toxic Hurricane` as available combined weathers (requires [Wesley's Weathers](https://thunderstore.io/c/lethal-company/p/Magic_Wesley/Wesleys_Weathers)).
 
 ## [1.3.θ] - 2025-1θ-17
 
