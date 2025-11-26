@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.3.2] - 2025-11-26
+
+### Snow lighting fix, Heatwave changes
+
+#### Fixes
+
+- Fixed snow not being as bright as it's supposed to be due to dynamic sky volume profile override not applying immediately.
+- Fixed `Heatwave` cooldown values no longer being updated after entering the facility once.
+
+#### Tweaks
+
+- Tweaked `Heatwave` cooldown mechanic a bit:
+  - Adjusted `Heatwave` cooldown animation curve to be more impactful once it starts getting dark.
+  - Switched to using the current moon's initial lighting intensity as its max luminosity, instead of an arbitrary value of `10`.
+    - Will probably not work perfectly on all moons, but on _most_ moons it should be noticeably less intense at night.
+  - Lowered minimum heat vfx parameter from `0.25` to `0.1`, when affected by no light.
+- Several other miscellaneous tweaks for `Heatwave`:
+  - Changed monitor color to a slightly different shade.
+  - Added a bunch of volcanic/desert/beach/canyon moons to the default level whitelist filter.
+  - Rebalanced default scrap multipliers.
+  - Made some pretty minor optimizations.
+
 ## [1.3.1] - 2025-11-21
 
 ### Oily snow is no more
@@ -18,7 +40,7 @@
 
 #### Tweaks
 
-- Some small tweaks to `Snowfall` and `Blizzard`.
+- Some small tweaks to `Snowfall` and `Blizzard`:
   - Changed monitor colors to a slightly different shade.
   - Added a bunch of volcanic/desert/beach moons to the default level blacklist filter.
   - Rebalanced default scrap multiplier values a bit.
