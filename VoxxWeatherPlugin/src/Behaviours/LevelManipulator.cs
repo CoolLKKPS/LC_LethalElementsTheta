@@ -149,6 +149,7 @@ namespace VoxxWeatherPlugin.Behaviours
         internal Vector3 shipPosition;
         internal System.Random? seededRandom;
         internal HDAdditionalLightData? sunLightData;
+        internal float startingSunIntensity = 10.0f;
         internal static string CurrentSceneName => (StartOfRound.Instance != null && StartOfRound.Instance.currentLevel != null)
             ? StartOfRound.Instance.currentLevel.sceneName : "";
         internal Weather currentWeather = null!;
@@ -199,8 +200,8 @@ namespace VoxxWeatherPlugin.Behaviours
             // Update random seed
             seededRandom = new System.Random(StartOfRound.Instance.randomMapSeed);
             // Update the sun light data
-            sunLightData = (TimeOfDay.Instance != null && TimeOfDay.Instance.sunDirect != null)
-                ? TimeOfDay.Instance.sunDirect.GetComponent<HDAdditionalLightData>() : null;
+            startingSunIntensity = (TimeOfDay.Instance != null && TimeOfDay.Instance.sunDirect != null
+                && TimeOfDay.Instance.sunDirect.TryGetComponent(out sunLightData)) ? sunLightData!.intensity : 10.0f;
             // Update the level bounds
             if (sizeMultiplier > 0f)
             {
@@ -232,7 +233,7 @@ namespace VoxxWeatherPlugin.Behaviours
             Debug.LogDebug($"Depth camera position: {levelDepthmapCamera.transform.position}, Size: {levelDepthmapCamera.orthographicSize}, Barycenter: {levelBounds.center}");
         }
 
-        private static readonly WaitUntil waitUntilShipLanded = new(() => StartOfRound.Instance != null && StartOfRound.Instance.shipHasLanded);
+        private static readonly WaitUntil waitUntilShipLanded = new(() => StartOfRound.Instance == null || StartOfRound.Instance.shipHasLanded);
 
         internal IEnumerator RefreshDepthmapOnLanding()
         {

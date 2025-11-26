@@ -37,6 +37,10 @@ namespace VoxxWeatherPlugin.Utils
             effectPermanentObject.SetActive(false);
 
             HeatwaveVFXManager heatwaveVFXManager = heatwaveContainer.GetComponentInChildren<HeatwaveVFXManager>(true);
+            heatwaveVFXManager.heatwaveIntensityCurve.SetKeys([
+                new(0.0f, 0.001f, 0.0f, 0.0f, 0.3333f, 0.3333f),
+                new(0.3323f, 0.2222f, 0.8851f, 0.8851f, 0.3333f, 0.3333f),
+                new(1.0f, 1.0f, 0.0f, 0.0f, 0.3333f, 0.3333f)]);
             //Possibly setup vfx configuration here
             GameObject effectObject = heatwaveVFXManager.gameObject;
             effectObject.SetActive(false);
