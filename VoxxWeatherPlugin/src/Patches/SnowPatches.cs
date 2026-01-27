@@ -244,7 +244,7 @@ namespace VoxxWeatherPlugin.Patches
         //Generic patch for all enemies, we patch manually since each derived enemy type overrides the base implementation
         private static void EnemySnowHindrancePatch(EnemyAI __instance)
         {
-            if (__instance.isOutside && __instance.IsHost && SnowAffectsEnemies && IsSnowActive()
+            if (__instance.agent != null && __instance.isOutside && __instance.IsHost && SnowAffectsEnemies && IsSnowActive()
                 && SnowThicknessManager.Instance != null)
             {
                 float snowThickness = SnowThicknessManager.Instance.GetSnowThickness(__instance);
