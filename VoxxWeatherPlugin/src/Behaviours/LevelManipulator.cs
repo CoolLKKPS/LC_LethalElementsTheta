@@ -644,9 +644,8 @@ namespace VoxxWeatherPlugin.Behaviours
             snowTracksCamera.targetTexture = snowTracksMap;
             snowTracksCamera.aspect = 1.0f;
 
-            moonProcessingWhitelist = LESettings.meshProcessingWhitelist.Value.CleanMoonName().TrimEnd(';').Split(';');
-            enemySnowBlacklist = [.. LESettings.enemySnowBlacklist.Value.ToLower(CultureInfo.InvariantCulture)
-                .TrimEnd(';').Split(';')];
+            moonProcessingWhitelist = LESettings.meshProcessingWhitelist.Value.Sanitize().Split(';', StringSplitOptions.RemoveEmptyEntries);
+            enemySnowBlacklist = [.. LESettings.enemySnowBlacklist.Value.Sanitize().Split(';', StringSplitOptions.RemoveEmptyEntries)];
 
             // Assign the snow effects to the PlayerEffectsManager
             foreach (Transform child in snowVolume.transform.parent)
@@ -856,14 +855,14 @@ namespace VoxxWeatherPlugin.Behaviours
             bool skipMoonProcessing = true;
             foreach (string moon in moonProcessingWhitelist)
             {
-                if (CurrentSceneName.CleanMoonName().Contains(moon))
+                if (CurrentSceneName.Sanitize().Contains(moon))
                 {
                     skipMoonProcessing = false;
                     break;
                 }
             }
             // For Experimentation moon, UVs are broken and need to be replaced
-            terraMeshConfig.replaceUvs = StartOfRound.Instance.currentLevel.name.CleanMoonName().Contains("experimentation");
+            terraMeshConfig.replaceUvs = StartOfRound.Instance.currentLevel.name.Sanitize().Contains("experimentation");
             terraMeshConfig.onlyUVs = skipMoonProcessing;
             if (!skipMoonProcessing)
             {
@@ -1008,14 +1007,14 @@ namespace VoxxWeatherPlugin.Behaviours
             bool skipMoonProcessing = true;
             foreach (string moon in moonProcessingWhitelist)
             {
-                if (CurrentSceneName.CleanMoonName().Contains(moon))
+                if (CurrentSceneName.Sanitize().Contains(moon))
                 {
                     skipMoonProcessing = false;
                     break;
                 }
             }
             // For Experimentation moon, UVs are broken and need to be replaced
-            terraMeshConfig.replaceUvs = StartOfRound.Instance.currentLevel.name.CleanMoonName().Contains("experimentation");
+            terraMeshConfig.replaceUvs = StartOfRound.Instance.currentLevel.name.Sanitize().Contains("experimentation");
             terraMeshConfig.onlyUVs = skipMoonProcessing;
             if (!skipMoonProcessing)
             {

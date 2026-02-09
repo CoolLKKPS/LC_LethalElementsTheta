@@ -2,7 +2,6 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection.Emit;
 using Unity.Netcode;
 using UnityEngine;
@@ -420,7 +419,7 @@ namespace VoxxWeatherPlugin.Patches
 
             foreach (SpawnableEnemyWithRarity enemy in RoundManager.Instance.currentLevel.DaytimeEnemies)
             {
-                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower(CultureInfo.InvariantCulture)))
+                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.Sanitize()))
                 {
                     if (!enemy.enemyType.spawningDisabled)
                     {
@@ -433,7 +432,7 @@ namespace VoxxWeatherPlugin.Patches
 
             foreach (SpawnableEnemyWithRarity enemy in RoundManager.Instance.currentLevel.OutsideEnemies)
             {
-                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.ToLower(CultureInfo.InvariantCulture)))
+                if (EnemySpawnBlacklist!.Contains(enemy.enemyType.enemyName.Sanitize()))
                 {
                     if (!enemy.enemyType.spawningDisabled)
                     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.AI.Navigation;
@@ -254,9 +254,11 @@ namespace VoxxWeatherPlugin.Utils
             networkObject.Spawn();
         }
 
-        public static string CleanMoonName(this string moonName)
+        private static readonly Regex stripSpecialCharactersRegex = new(@"([^\p{L}\d;])", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        public static string Sanitize(this string moonName)
         {
-            return moonName.Replace(" ", "").Replace("_", "").Replace("-", "").ToLower(CultureInfo.InvariantCulture);
+            return stripSpecialCharactersRegex.Replace(moonName, string.Empty).ToLowerInvariant();
         }
 
         public static void WhiteOut(this RenderTexture rt)
